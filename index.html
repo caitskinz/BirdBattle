@@ -31,7 +31,6 @@
       gap: 40px;
       margin: 30px auto;
       max-width: 1600px;
-      height: 90vh;
     }
 
     .side {
@@ -57,7 +56,6 @@
       display: flex;
       flex-direction: column;
       justify-content: space-around;
-      /* even vertical spacing */
       flex: 1;
       position: relative;
     }
@@ -220,16 +218,23 @@
       .side {
         flex-direction: column !important;
         gap: 20px;
+        width: 100%;
       }
 
       .center {
         order: -1;
-        /* Final on top */
+        width: 100%;
+      }
+
+      .round {
+        justify-content: flex-start;
+        width: 100%;
+        align-items: center;
       }
 
       .match {
-        width: 90vw;
-        max-width: 350px;
+        width: 95%;
+        max-width: 400px;
       }
 
       /* Hide connectors on mobile */
@@ -291,8 +296,8 @@
   </div>
 
   <script>
-    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?gid=1366198750&single=true&output=csv"; // publish Matchups as CSV
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxUDTostkrNZ8FEQV9FHoLqYIr0PkQBlcl2NqUDf88v6iY27FUTV0bcuhn_cFkXeR4sdQ/exec";   // Apps Script Web App
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?gid=1366198750&single=true&output=csv"; 
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxUDTostkrNZ8FEQV9FHoLqYIr0PkQBlcl2NqUDf88v6iY27FUTV0bcuhn_cFkXeR4sdQ/exec";   
 
     let currentMatchId = null;
 
@@ -304,11 +309,11 @@
       const headers = rows.shift();
 
       // Clear containers
-      ["round1-left","round2-left","round3-left",
-       "round1-right","round2-right","round3-right",
-       "round4"].forEach(id => {
-        document.querySelector(`#${id} .matches`).innerHTML = "";
-      });
+      ["round1-left", "round2-left", "round3-left",
+        "round1-right", "round2-right", "round3-right",
+        "round4"].forEach(id => {
+          document.querySelector(`#${id} .matches`).innerHTML = "";
+        });
 
       rows.forEach(row => {
         const data = {};
@@ -334,7 +339,6 @@
           matchDiv.classList.add("winner");
         }
 
-        // Figure out which container
         let targetId;
         const mid = parseInt(data.MatchID);
         if (mid >= 1 && mid <= 4) targetId = "round1-left";
@@ -347,10 +351,10 @@
 
         const roundContainer = document.querySelector(`#${targetId} .matches`);
 
-        // Wrap matches into pairs
         let pair;
-        if (roundContainer.lastElementChild && roundContainer.lastElementChild.classList.contains("pair") &&
-            roundContainer.lastElementChild.childElementCount < 2) {
+        if (roundContainer.lastElementChild &&
+          roundContainer.lastElementChild.classList.contains("pair") &&
+          roundContainer.lastElementChild.childElementCount < 2) {
           pair = roundContainer.lastElementChild;
         } else {
           pair = document.createElement("div");
@@ -406,7 +410,7 @@
 
       modalTitle.innerText = "Choose your bird";
 
-      [0,1].forEach(i => {
+      [0, 1].forEach(i => {
         const choiceImg = document.createElement('img');
         choiceImg.src = imgs[i].src;
         choiceImg.alt = names[i].innerText;
@@ -445,22 +449,21 @@
         }),
         headers: { "Content-Type": "application/json" }
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === "duplicate") {
-          document.getElementById('choices').innerHTML = `<p>⚠️ You already voted in this match.</p>`;
-        } else {
-          document.getElementById('choices').innerHTML += `<p>✅ You voted for <b>${choice}</b></p>`;
-        }
-      })
-      .catch(err => {
-        console.error("Vote failed:", err);
-        document.getElementById('choices').innerHTML += `<p style="color:red">❌ Vote failed. Please try again.</p>`;
-      });
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === "duplicate") {
+            document.getElementById('choices').innerHTML = `<p>⚠️ You already voted in this match.</p>`;
+          } else {
+            document.getElementById('choices').innerHTML += `<p>✅ You voted for <b>${choice}</b></p>`;
+          }
+        })
+        .catch(err => {
+          console.error("Vote failed:", err);
+          document.getElementById('choices').innerHTML += `<p style="color:red">❌ Vote failed. Please try again.</p>`;
+        });
     }
 
     loadMatches();
   </script>
 </body>
-
 </html>
