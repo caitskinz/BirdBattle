@@ -2,71 +2,97 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Bird Bracket</title>
+  <title>Bird Bracket Voting</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f2f2f2; }
-    h1 { text-align: center; margin-top: 20px; }
-    .bracket { 
-      display: flex; 
-      flex-wrap: wrap; 
-      gap: 20px; 
-      justify-content: center; 
-      margin: 30px; 
+    body { font-family: Arial, sans-serif; background: #f9fafb; margin: 0; padding: 0; }
+    h1 { text-align: center; margin: 20px; font-size: 2em; }
+
+    /* Bracket Layout */
+    .bracket {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 40px;
+      margin: 30px auto;
+      max-width: 1600px;
     }
-    .match { 
-      width: 220px; 
-      padding: 15px; 
-      border: 2px solid #ccc; 
-      border-radius: 10px; 
-      background: #fff; 
-      text-align: center; 
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+    .side {
+      display: flex;
+      flex-direction: row;
+      gap: 30px;
+    }
+    .side.left { flex-direction: row-reverse; }
+    .center { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+
+    .round {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .round h2 { margin-bottom: 15px; font-size: 1.2em; }
+
+    /* Match Cards */
+    .match {
+      width: 220px;
+      padding: 15px;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      background: #fff;
+      text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      transition: 0.2s;
     }
     .match.disabled { opacity: 0.6; pointer-events: none; }
-    .match img { 
-      width: 80px; 
-      height: 80px; 
-      border-radius: 50%; 
-      margin: 10px 0; 
-      object-fit: cover; 
+    .match h3 { margin: 5px 0 10px; font-size: 1em; }
+    .match img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      margin: 5px 0;
+      object-fit: cover;
     }
     .nominee { font-size: 0.8em; color: #666; display: block; margin-bottom: 8px; }
-    button { 
-      padding: 8px 15px; 
-      border: none; 
-      border-radius: 5px; 
-      background: #007BFF; 
-      color: white; 
-      cursor: pointer; 
-      margin-top: 10px; 
+    button {
+      padding: 8px 15px;
+      border: none;
+      border-radius: 6px;
+      background: #007BFF;
+      color: white;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s;
     }
+    button:hover:not(:disabled) { background: #0056b3; }
     button:disabled { background: #ccc; cursor: not-allowed; }
 
     /* Modal */
-    .modal { 
-      display: none; 
-      position: fixed; 
-      top: 0; left: 0; 
-      width: 100%; height: 100%; 
-      background: rgba(0,0,0,0.7); 
-      justify-content: center; 
-      align-items: center; 
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center;
+      align-items: center;
     }
-    .modal-content { 
-      background: white; 
-      padding: 20px; 
-      border-radius: 10px; 
-      text-align: center; 
-      max-width: 400px; 
+    .modal-content {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      text-align: center;
+      max-width: 420px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
     }
-    .modal-content img { 
-      width: 120px; 
-      height: 120px; 
-      margin: 15px; 
-      cursor: pointer; 
-      border: 3px solid transparent; 
-      border-radius: 10px; 
-      transition: 0.2s; 
+    .modal-content h2 { margin-bottom: 15px; }
+    .modal-content img {
+      width: 120px;
+      height: 120px;
+      margin: 15px;
+      cursor: pointer;
+      border: 3px solid transparent;
+      border-radius: 12px;
+      transition: 0.2s;
       object-fit: cover;
     }
     .modal-content img:hover { border: 3px solid #007BFF; }
@@ -74,7 +100,25 @@
 </head>
 <body>
   <h1>🐦 Bird Bracket Voting 🐦</h1>
-  <div class="bracket" id="bracket"></div>
+  <div class="bracket">
+    <div class="side left">
+      
+  
+      <div class="round" id="round3-left"><h2>Semifinal</h2><div class="matches"></div></div>
+      <div class="round" id="round2-left"><h2>Quarterfinals</h2><div class="matches"></div></div>
+      <div class="round" id="round1-left"><h2>Round 1</h2><div class="matches"></div></div>
+    </div>
+
+    <div class="center">
+      <div class="round" id="round4"><h2>Final</h2><div class="matches"></div></div>
+    </div>
+
+    <div class="side right">
+      <div class="round" id="round3-right"><h2>Semifinal</h2><div class="matches"></div></div>
+      <div class="round" id="round2-right"><h2>Quarterfinals</h2><div class="matches"></div></div>
+      <div class="round" id="round1-right"><h2>Round 1</h2><div class="matches"></div></div>
+    </div>
+  </div>
 
   <!-- Modal -->
   <div id="voteModal" class="modal">
@@ -87,7 +131,7 @@
 
   <script>
     const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?gid=1366198750&single=true&output=csv"; // publish Matchups as CSV
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxUDTostkrNZ8FEQV9FHoLqYIr0PkQBlcl2NqUDf88v6iY27FUTV0bcuhn_cFkXeR4sdQ/exec";   // your Apps Script Web App
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxUDTostkrNZ8FEQV9FHoLqYIr0PkQBlcl2NqUDf88v6iY27FUTV0bcuhn_cFkXeR4sdQ/exec";   // Apps Script Web App
 
     let currentMatchId = null;
 
@@ -96,10 +140,14 @@
       const text = await response.text();
 
       const rows = text.trim().split("\n").map(r => r.split(","));
-      const headers = rows.shift(); // first row = headers
+      const headers = rows.shift();
 
-      const bracketDiv = document.getElementById("bracket");
-      bracketDiv.innerHTML = "";
+      // Clear all round containers
+      ["round1-left","round2-left","round3-left",
+       "round1-right","round2-right","round3-right",
+       "round4"].forEach(id => {
+        document.querySelector(`#${id} .matches`).innerHTML = "";
+      });
 
       rows.forEach(row => {
         const data = {};
@@ -121,7 +169,19 @@
           <button disabled>Vote</button>
         `;
 
-        bracketDiv.appendChild(matchDiv);
+        // Place into correct side/round
+        let targetId;
+        const mid = parseInt(data.MatchID);
+        if (mid >= 1 && mid <= 4) targetId = "round1-left";
+        else if (mid >= 5 && mid <= 8) targetId = "round1-right";
+        else if (mid === 9 || mid === 10) targetId = "round2-left";
+        else if (mid === 11 || mid === 12) targetId = "round2-right";
+        else if (mid === 13) targetId = "round3-left";
+        else if (mid === 14) targetId = "round3-right";
+        else if (mid === 15) targetId = "round4";
+
+        const roundContainer = document.querySelector(`#${targetId} .matches`);
+        if (roundContainer) roundContainer.appendChild(matchDiv);
       });
 
       enableMatches();
@@ -159,7 +219,6 @@
       const modalTitle = document.getElementById('modalTitle');
       choicesDiv.innerHTML = "";
 
-      // Check localStorage first
       const previousVote = localStorage.getItem("voted_match_" + currentMatchId);
       if (previousVote) {
         modalTitle.innerText = "You already voted";
@@ -189,27 +248,23 @@
     function sendVote(choiceImg) {
       const choice = choiceImg.dataset.choice;
 
-      // Disable further clicks
       const allChoices = document.querySelectorAll('#choices img');
       allChoices.forEach(img => {
         img.style.pointerEvents = "none";
         img.style.opacity = "0.5";
       });
 
-      // Highlight chosen
       choiceImg.style.opacity = "1";
       choiceImg.style.border = "3px solid green";
 
-      // Save locally
       localStorage.setItem("voted_match_" + currentMatchId, choice);
 
-      // Send to Google Apps Script
       fetch(WEBAPP_URL, {
         method: "POST",
         body: JSON.stringify({
           matchId: currentMatchId,
           choice: choice,
-          voter: localStorage.getItem("voterId") || "" // optional
+          voter: localStorage.getItem("voterId") || ""
         }),
         headers: { "Content-Type": "application/json" }
       })
@@ -227,7 +282,6 @@
       });
     }
 
-    // Run on page load
     loadMatches();
   </script>
 </body>
