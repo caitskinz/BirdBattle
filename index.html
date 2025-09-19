@@ -1,152 +1,403 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <title>Bird Bracket Voting</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bird Bracket Voting</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #5ac5cc;
+            margin: 0;
+            padding: 0;
+        }
 
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #5ac5cc;
-      margin: 0;
-      padding: 0;
-    }
+        h1 {
+            text-align: center;
+            margin: 20px;
+            font-size: 2em;
+            background-color: white;
+            border-radius: 20px;
+            padding: 10px;
+        }
 
-    h1 {
-      text-align: center;
-      margin: 20px;
-      font-size: 2em;
-      background-color: white;
-      border-radius: 20px;
-      padding: 10px;
-    }
+        /* Default visibility */
+        .bracket {
+            display: flex;
+        }
 
-    /* Default visibility */
-    .bracket { display: flex; }
-    .mobile-rounds { display: none; }
+        .mobile-rounds {
+            display: none;
+        }
 
-    /* Bracket Layout (Desktop) */
-    .bracket {
-      justify-content: center;
-      align-items: stretch;
-      gap: 40px;
-      margin: 30px auto;
-      max-width: 1600px;
-    }
-    .side { display: flex; flex-direction: row; gap: 30px; flex: 1; }
-    .side.left { flex-direction: row-reverse; }
-    .center { display: flex; flex-direction: column; justify-content: center; align-items: center; flex: 0 0 auto; }
-    .round { display: flex; flex-direction: column; justify-content: space-around; flex: 1; position: relative; }
-    .round h2 { margin-bottom: 15px; font-size: 1.2em; text-align: center; }
+        /* Bracket Layout (Desktop) */
+        .bracket {
+            justify-content: center;
+            align-items: stretch;
+            gap: 30px;
+            margin: 30px auto;
+            max-width: 1600px;
+        }
 
-    /* Pair connectors (desktop only) */
-    .pair { display: flex; flex-direction: column; align-items: center; position: relative; gap: 40px; }
-    .side.left .pair::after {
-      content: ""; position: absolute; right: -30px; top: 25%;
-      height: 50%; width: 30px;
-      border-right: 2px solid #999; border-top: 2px solid #999; border-bottom: 2px solid #999;
-    }
-    .side.right .pair::after {
-      content: ""; position: absolute; left: -30px; top: 25%;
-      height: 50%; width: 30px;
-      border-left: 2px solid #999; border-top: 2px solid #999; border-bottom: 2px solid #999;
-    }
+        .side {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            flex: 1;
+        }
 
-    /* Match Cards */
-    .match {
-      width: 220px; padding: 15px;
-      border: 3px solid #00395d; border-radius: 12px;
-      background: #fff; text-align: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      transition: 0.2s;
-    }
-    .match.disabled { opacity: 0.6; pointer-events: none; }
-    .match h3 { margin: 5px 0 10px; font-size: 1em; }
-    .match img {
-      width: 80px; height: 80px; border-radius: 20px; margin: 5px 0;
-      object-fit: cover; border: solid 3px #00395d;
-    }
-    .nominee { font-size: 0.8em; color: #666; display: block; margin-bottom: 8px; }
-    button { padding: 8px 15px; border: none; border-radius: 6px; background: #007BFF; color: white; cursor: pointer; margin-top: 8px; }
-    button:hover:not(:disabled) { background: #0056b3; }
-    button:disabled { background: #ccc; cursor: not-allowed; }
-    .winner { border-color: #28a745 !important; background: #e9f9ef !important; }
+        .side.left {
+            flex-direction: row-reverse;
+        }
 
-    /* Modal */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6); justify-content: center; align-items: center; }
-    .modal-content { background: white; padding: 25px; border-radius: 12px; text-align: center; max-width: 420px; }
-    .modal-content h2 { margin-bottom: 15px; }
-    .modal-content img { width: 120px; height: 120px; margin: 15px; cursor: pointer; border: 3px solid transparent; border-radius: 12px; object-fit: cover; }
-    .modal-content img:hover { border: 3px solid #007BFF; }
+        .center {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            flex: 0 0 auto;
+        }
 
-    /* 📱 Mobile stacked rounds */
-    @media (max-width: 768px) {
-      .bracket { display: none; }
-      .mobile-rounds { display: block; padding: 10px; }
+        .round {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            flex: 1;
+            position: relative;
+        }
 
-      .round-selector {
-        display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
-      }
-      .round-selector button {
-        padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer;
-        background: #00395d; color: white;
-      }
-      .round-selector button.active { background: #007BFF; }
+        .round h2 {
+            margin-bottom: 10px;
+            font-size: 1.1em;
+            text-align: center;
+        }
 
-      .mobile-round { display: none; flex-direction: column; align-items: center; gap: 20px; }
-      .mobile-round.active { display: flex; }
+        /* Pair connectors (desktop only) */
+        .pair {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            gap: 25px;
+        }
 
-      .match { width: 95%; max-width: 400px; }
-    }
-  </style>
+        .side.left .pair::after {
+            content: "";
+            position: absolute;
+            right: -25px;
+            top: 25%;
+            height: 50%;
+            width: 25px;
+            border-right: 2px solid #999;
+            border-top: 2px solid #999;
+            border-bottom: 2px solid #999;
+        }
+
+        .side.right .pair::after {
+            content: "";
+            position: absolute;
+            left: -25px;
+            top: 25%;
+            height: 50%;
+            width: 25px;
+            border-left: 2px solid #999;
+            border-top: 2px solid #999;
+            border-bottom: 2px solid #999;
+        }
+
+        /* Match Cards (Desktop = Vertical) */
+        .match {
+            width: 220px;
+            padding: 15px;
+            border: 3px solid #00395d;
+            border-radius: 12px;
+            background: #fff;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: 0.2s;
+            display: block;
+        }
+
+        .match.disabled {
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .match h3 {
+            margin: 5px 0 10px;
+            font-size: 1em;
+        }
+
+        .match img {
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            margin: 5px 0;
+            object-fit: cover;
+            border: solid 3px #00395d;
+        }
+
+        .nominee {
+            font-size: 0.8em;
+            color: #666;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            background: #007BFF;
+            color: white;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        button:hover:not(:disabled) {
+            background: #0056b3;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .winner {
+            border-color: #28a745 !important;
+            background: #e9f9ef !important;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 420px;
+        }
+
+        .modal-content h2 {
+            margin-bottom: 15px;
+        }
+
+        .modal-content img {
+            width: 120px;
+            height: 120px;
+            margin: 15px;
+            cursor: pointer;
+            border: 3px solid transparent;
+            border-radius: 12px;
+            object-fit: cover;
+        }
+
+        .modal-content img:hover {
+            border: 3px solid #007BFF;
+        }
+
+        /* 📱 Mobile (≤768px) = Wide + Short Horizontal Matches */
+        @media (max-width: 768px) {
+            .bracket {
+                display: none;
+            }
+
+            .mobile-rounds {
+                display: block;
+                padding: 10px;
+            }
+
+            .round-selector {
+                display: flex;
+                justify-content: center;
+                gap: 10px;
+                margin-bottom: 20px;
+                flex-wrap: wrap;
+            }
+
+            .round-selector button {
+                padding: 6px 12px;
+                border: none;
+                border-radius: 6px;
+                cursor: pointer;
+                background: #00395d;
+                color: white;
+            }
+
+            .round-selector button.active {
+                background: #007BFF;
+            }
+
+            .mobile-round {
+                display: none;
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+
+            .mobile-round.active {
+                display: flex;
+            }
+
+            .match {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                width: 95%;
+                max-width: 450px;
+                padding: 10px;
+            }
+
+            .entry {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                flex: 1;
+                text-align: center;
+            }
+
+            .entry img {
+                width: 60px;
+                height: 60px;
+                border-radius: 12px;
+                object-fit: cover;
+                border: 2px solid #00395d;
+                margin-bottom: 5px;
+            }
+
+            .entry div {
+                font-size: 0.9em;
+                font-weight: bold;
+            }
+
+            .nominee {
+                font-size: 0.7em;
+                color: #666;
+            }
+
+            .vote {
+                flex: 0 0 auto;
+                margin: 0 10px;
+            }
+
+            .vote button {
+                padding: 6px 12px;
+                border-radius: 6px;
+                background: #007BFF;
+                color: white;
+                border: none;
+                cursor: pointer;
+                font-size: 0.9em;
+            }
+        }
+
+        /* Scaling bracket for smaller desktops */
+        @media (min-width: 769px) and (max-width: 1400px) {
+            .bracket {
+                transform: scale(0.85);
+                transform-origin: top center;
+            }
+        }
+
+        @media (min-width: 769px) and (max-width: 1100px) {
+            .bracket {
+                transform: scale(0.7);
+                transform-origin: top center;
+            }
+        }
+    </style>
 </head>
+
 <body>
-  <h1>🥊 💥 🐦 Battle of the Birds 🐦 💥 🥊</h1>
+    <h1>🥊 💥 🐦 Battle of the Birds 🐦 💥 🥊</h1>
 
-  <!-- Desktop Bracket -->
-  <div class="bracket">
-    <div class="side left">
-      <div class="round" id="round3-left"><h2>Semifinal</h2><div class="matches"></div></div>
-      <div class="round" id="round2-left"><h2>Quarterfinals</h2><div class="matches"></div></div>
-      <div class="round" id="round1-left"><h2>Round 1</h2><div class="matches"></div></div>
+    <!-- Desktop Bracket -->
+    <div class="bracket">
+        <div class="side left">
+            <div class="round" id="round3-left">
+                <h2>Semifinal</h2>
+                <div class="matches"></div>
+            </div>
+            <div class="round" id="round2-left">
+                <h2>Quarterfinals</h2>
+                <div class="matches"></div>
+            </div>
+            <div class="round" id="round1-left">
+                <h2>Round 1</h2>
+                <div class="matches"></div>
+            </div>
+        </div>
+        <div class="center">
+            <div class="round" id="round4">
+                <h2>Final</h2>
+                <div class="matches"></div>
+            </div>
+        </div>
+        <div class="side right">
+            <div class="round" id="round3-right">
+                <h2>Semifinal</h2>
+                <div class="matches"></div>
+            </div>
+            <div class="round" id="round2-right">
+                <h2>Quarterfinals</h2>
+                <div class="matches"></div>
+            </div>
+            <div class="round" id="round1-right">
+                <h2>Round 1</h2>
+                <div class="matches"></div>
+            </div>
+        </div>
     </div>
-    <div class="center">
-      <div class="round" id="round4"><h2>Final</h2><div class="matches"></div></div>
-    </div>
-    <div class="side right">
-      <div class="round" id="round3-right"><h2>Semifinal</h2><div class="matches"></div></div>
-      <div class="round" id="round2-right"><h2>Quarterfinals</h2><div class="matches"></div></div>
-      <div class="round" id="round1-right"><h2>Round 1</h2><div class="matches"></div></div>
-    </div>
-  </div>
 
-  <!-- Mobile Rounds -->
-  <div class="mobile-rounds">
-    <div class="round-selector">
-      <button onclick="showMobileRound('round1')" class="active">Round 1</button>
-      <button onclick="showMobileRound('round2')">Quarterfinals</button>
-      <button onclick="showMobileRound('round3')">Semifinals</button>
-      <button onclick="showMobileRound('round4')">Final</button>
+    <!-- Mobile Rounds -->
+    <div class="mobile-rounds">
+        <div class="round-selector">
+            <button onclick="showMobileRound('round1')" class="active">Round 1</button>
+            <button onclick="showMobileRound('round2')">Quarterfinals</button>
+            <button onclick="showMobileRound('round3')">Semifinals</button>
+            <button onclick="showMobileRound('round4')">Final</button>
+        </div>
+        <div id="mobile-round1" class="mobile-round active">
+            <h2>Round 1</h2>
+            <div class="matches"></div>
+        </div>
+        <div id="mobile-round2" class="mobile-round">
+            <h2>Quarterfinals</h2>
+            <div class="matches"></div>
+        </div>
+        <div id="mobile-round3" class="mobile-round">
+            <h2>Semifinals</h2>
+            <div class="matches"></div>
+        </div>
+        <div id="mobile-round4" class="mobile-round">
+            <h2>Final</h2>
+            <div class="matches"></div>
+        </div>
     </div>
-    <div id="mobile-round1" class="mobile-round active"><h2>Round 1</h2><div class="matches"></div></div>
-    <div id="mobile-round2" class="mobile-round"><h2>Quarterfinals</h2><div class="matches"></div></div>
-    <div id="mobile-round3" class="mobile-round"><h2>Semifinals</h2><div class="matches"></div></div>
-    <div id="mobile-round4" class="mobile-round"><h2>Final</h2><div class="matches"></div></div>
-  </div>
 
-  <!-- Modal -->
-  <div id="voteModal" class="modal">
-    <div class="modal-content">
-      <h2 id="modalTitle">Choose your bird</h2>
-      <div id="choices"></div>
-      <button onclick="closeModal()">Close</button>
+    <!-- Modal -->
+    <div id="voteModal" class="modal">
+        <div class="modal-content">
+            <h2 id="modalTitle">Choose your bird</h2>
+            <div id="choices"></div>
+            <button onclick="closeModal()">Close</button>
+        </div>
     </div>
-  </div>
 
-  <script>
-    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?gid=1366198750&single=true&output=csv";
+    <script>
+        const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?gid=1366198750&single=true&output=csv"; 
     const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxUDTostkrNZ8FEQV9FHoLqYIr0PkQBlcl2NqUDf88v6iY27FUTV0bcuhn_cFkXeR4sdQ/exec";
     let currentMatchId = null;
 
@@ -171,11 +422,13 @@
 
       rows.forEach(row => {
         const data = {}; headers.forEach((h,i) => data[h] = row[i]);
-        const matchDiv = document.createElement("div");
-        matchDiv.className = "match disabled";
-        matchDiv.dataset.date = data.Date;
-        matchDiv.dataset.matchid = data.MatchID;
-        matchDiv.innerHTML = `
+
+        // Desktop vertical card
+        const matchDesktop = document.createElement("div");
+        matchDesktop.className = "match disabled";
+        matchDesktop.dataset.date = data.Date;
+        matchDesktop.dataset.matchid = data.MatchID;
+        matchDesktop.innerHTML = `
           <h3>Match ${data.MatchID}</h3>
           <img src="${data.EntryA_ImageURL}" alt="${data.EntryA_Name}">
           <div>${data.EntryA_Name}</div>
@@ -185,7 +438,27 @@
           <span class="nominee">Nominated by ${data.EntryB_Nominee}</span>
           <button disabled>Vote</button>
         `;
-        if (data.Winner && data.Winner.trim() !== "") matchDiv.classList.add("winner");
+        if (data.Winner && data.Winner.trim() !== "") matchDesktop.classList.add("winner");
+
+        // Mobile horizontal card
+        const matchMobile = document.createElement("div");
+        matchMobile.className = "match disabled";
+        matchMobile.dataset.date = data.Date;
+        matchMobile.dataset.matchid = data.MatchID;
+        matchMobile.innerHTML = `
+          <div class="entry">
+            <img src="${data.EntryA_ImageURL}" alt="${data.EntryA_Name}">
+            <div>${data.EntryA_Name}</div>
+            <span class="nominee">Nominated by ${data.EntryA_Nominee}</span>
+          </div>
+          <div class="vote"><button disabled>Vote</button></div>
+          <div class="entry">
+            <img src="${data.EntryB_ImageURL}" alt="${data.EntryB_Name}">
+            <div>${data.EntryB_Name}</div>
+            <span class="nominee">Nominated by ${data.EntryB_Nominee}</span>
+          </div>
+        `;
+        if (data.Winner && data.Winner.trim() !== "") matchMobile.classList.add("winner");
 
         let targetId, mobileTarget;
         const mid = parseInt(data.MatchID);
@@ -197,7 +470,7 @@
         else if (mid === 14) { targetId="round3-right"; mobileTarget="mobile-round3"; }
         else if (mid === 15) { targetId="round4"; mobileTarget="mobile-round4"; }
 
-        // desktop
+        // Desktop pairs
         const roundContainer = document.querySelector(`#${targetId} .matches`);
         let pair;
         if (roundContainer && roundContainer.lastElementChild && roundContainer.lastElementChild.classList.contains("pair") &&
@@ -208,11 +481,11 @@
           pair.className = "pair";
           roundContainer.appendChild(pair);
         }
-        if (pair) pair.appendChild(matchDiv.cloneNode(true));
+        if (pair) pair.appendChild(matchDesktop);
 
-        // mobile
+        // Mobile
         const mobileContainer = document.querySelector(`#${mobileTarget} .matches`);
-        mobileContainer.appendChild(matchDiv);
+        mobileContainer.appendChild(matchMobile);
       });
 
       enableMatches();
@@ -284,6 +557,7 @@
     }
 
     loadMatches();
-  </script>
+    </script>
 </body>
+
 </html>
