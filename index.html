@@ -28,9 +28,59 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 20px;
+      gap: 40px; /* add vertical space for connectors */
+      position: relative;
     }
     .round h2 { margin-bottom: 15px; font-size: 1.2em; }
+
+    /* Match Wrappers (for connectors) */
+    .match-wrapper {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Horizontal connector */
+    .side.left .match-wrapper::after {
+      content: "";
+      position: absolute;
+      right: -30px;
+      top: 50%;
+      width: 30px;
+      height: 2px;
+      background: #999;
+    }
+    .side.right .match-wrapper::after {
+      content: "";
+      position: absolute;
+      left: -30px;
+      top: 50%;
+      width: 30px;
+      height: 2px;
+      background: #999;
+    }
+
+    /* Vertical connector joining pairs (left) */
+    .side.left .match-wrapper:nth-child(odd)::before {
+      content: "";
+      position: absolute;
+      right: -30px;
+      top: 50%;
+      width: 2px;
+      height: calc(100% + 40px);
+      background: #999;
+    }
+    /* Vertical connector joining pairs (right) */
+    .side.right .match-wrapper:nth-child(odd)::before {
+      content: "";
+      position: absolute;
+      left: -30px;
+      top: 50%;
+      width: 2px;
+      height: calc(100% + 40px);
+      background: #999;
+    }
 
     /* Match Cards */
     .match {
@@ -66,6 +116,12 @@
     button:hover:not(:disabled) { background: #0056b3; }
     button:disabled { background: #ccc; cursor: not-allowed; }
 
+    /* Winner Highlight */
+    .winner {
+      border-color: #28a745 !important;
+      background: #e9f9ef !important;
+    }
+
     /* Modal */
     .modal {
       display: none;
@@ -96,14 +152,37 @@
       object-fit: cover;
     }
     .modal-content img:hover { border: 3px solid #007BFF; }
+
+    /* 📱 Mobile Layout */
+    @media (max-width: 768px) {
+      .bracket {
+        flex-direction: column;
+        gap: 20px;
+        align-items: center;
+      }
+      .side {
+        flex-direction: column !important;
+        gap: 20px;
+      }
+      .center {
+        order: -1; /* Final on top */
+      }
+      .match {
+        width: 90vw;
+        max-width: 350px;
+      }
+      /* Hide connectors on mobile */
+      .match-wrapper::after,
+      .match-wrapper::before {
+        display: none !important;
+      }
+    }
   </style>
 </head>
 <body>
   <h1>🐦 Bird Bracket Voting 🐦</h1>
   <div class="bracket">
     <div class="side left">
-      
-  
       <div class="round" id="round3-left"><h2>Semifinal</h2><div class="matches"></div></div>
       <div class="round" id="round2-left"><h2>Quarterfinals</h2><div class="matches"></div></div>
       <div class="round" id="round1-left"><h2>Round 1</h2><div class="matches"></div></div>
@@ -131,7 +210,7 @@
 
   <script>
     const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?gid=1366198750&single=true&output=csv"; // publish Matchups as CSV
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxKwuWSeZl3gVKpVxTK9K8TAV9n67FuTOp1x_ScwjwYFPL2lTtekqY3aSM9yLrEs4cGRw/exec";   // Apps Script Web App
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxUDTostkrNZ8FEQV9FHoLqYIr0PkQBlcl2NqUDf88v6iY27FUTV0bcuhn_cFkXeR4sdQ/exec";   // Apps Script Web App
 
     let currentMatchId = null;
 
@@ -142,7 +221,7 @@
       const rows = text.trim().split("\n").map(r => r.split(","));
       const headers = rows.shift();
 
-      // Clear all round containers
+      // Clear containers
       ["round1-left","round2-left","round3-left",
        "round1-right","round2-right","round3-right",
        "round4"].forEach(id => {
@@ -152,6 +231,9 @@
       rows.forEach(row => {
         const data = {};
         headers.forEach((h, i) => data[h] = row[i]);
+
+        const wrapper = document.createElement("div");
+        wrapper.className = "match-wrapper";
 
         const matchDiv = document.createElement("div");
         matchDiv.className = "match disabled";
@@ -169,7 +251,14 @@
           <button disabled>Vote</button>
         `;
 
-        // Place into correct side/round
+        // Highlight winner if decided
+        if (data.Winner && data.Winner.trim() !== "") {
+          matchDiv.classList.add("winner");
+        }
+
+        wrapper.appendChild(matchDiv);
+
+        // Place in correct round
         let targetId;
         const mid = parseInt(data.MatchID);
         if (mid >= 1 && mid <= 4) targetId = "round1-left";
@@ -181,7 +270,7 @@
         else if (mid === 15) targetId = "round4";
 
         const roundContainer = document.querySelector(`#${targetId} .matches`);
-        if (roundContainer) roundContainer.appendChild(matchDiv);
+        if (roundContainer) roundContainer.appendChild(wrapper);
       });
 
       enableMatches();
