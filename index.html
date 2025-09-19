@@ -5,33 +5,76 @@
   <title>Bird Bracket</title>
   <style>
     body { font-family: Arial, sans-serif; background: #f2f2f2; }
-    .bracket { display: flex; gap: 40px; justify-content: center; margin-top: 50px; flex-wrap: wrap; }
-    .match { width: 200px; padding: 20px; border: 2px solid #ccc; border-radius: 10px; background: #fff; text-align: center; margin: 10px; }
-    .match.disabled { opacity: 0.5; pointer-events: none; }
-    .match img { width: 80px; height: 80px; border-radius: 50%; margin: 10px; }
-    button { padding: 10px 20px; margin-top: 10px; border: none; border-radius: 5px; background: #007BFF; color: white; cursor: pointer; }
+    h1 { text-align: center; margin-top: 20px; }
+    .bracket { 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 20px; 
+      justify-content: center; 
+      margin: 30px; 
+    }
+    .match { 
+      width: 220px; 
+      padding: 15px; 
+      border: 2px solid #ccc; 
+      border-radius: 10px; 
+      background: #fff; 
+      text-align: center; 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+    }
+    .match.disabled { opacity: 0.6; pointer-events: none; }
+    .match img { 
+      width: 80px; 
+      height: 80px; 
+      border-radius: 50%; 
+      margin: 10px 0; 
+      object-fit: cover; 
+    }
+    .nominee { font-size: 0.8em; color: #666; display: block; margin-bottom: 8px; }
+    button { 
+      padding: 8px 15px; 
+      border: none; 
+      border-radius: 5px; 
+      background: #007BFF; 
+      color: white; 
+      cursor: pointer; 
+      margin-top: 10px; 
+    }
     button:disabled { background: #ccc; cursor: not-allowed; }
 
     /* Modal */
-    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; }
-    .modal-content { background: white; padding: 20px; border-radius: 10px; text-align: center; max-width: 400px; }
-    .modal-content img { width: 120px; height: 120px; margin: 20px; cursor: pointer; border: 3px solid transparent; border-radius: 10px; transition: 0.2s; }
+    .modal { 
+      display: none; 
+      position: fixed; 
+      top: 0; left: 0; 
+      width: 100%; height: 100%; 
+      background: rgba(0,0,0,0.7); 
+      justify-content: center; 
+      align-items: center; 
+    }
+    .modal-content { 
+      background: white; 
+      padding: 20px; 
+      border-radius: 10px; 
+      text-align: center; 
+      max-width: 400px; 
+    }
+    .modal-content img { 
+      width: 120px; 
+      height: 120px; 
+      margin: 15px; 
+      cursor: pointer; 
+      border: 3px solid transparent; 
+      border-radius: 10px; 
+      transition: 0.2s; 
+      object-fit: cover;
+    }
     .modal-content img:hover { border: 3px solid #007BFF; }
   </style>
 </head>
 <body>
-  <div class="bracket">
-    <!-- Example Match -->
-    <div class="match disabled" data-date="2025-09-20" data-matchid="1">
-      <h3>Match 1</h3>
-      <img src="tui.jpg" alt="Tui"><br>
-      <span>Tui</span><br>
-      <img src="fantail.jpg" alt="Fantail"><br>
-      <span>Fantail</span><br>
-      <button disabled>Vote</button>
-    </div>
-    <!-- Duplicate this block for all matches, updating data-date and data-matchid -->
-  </div>
+  <h1>🐦 Bird Bracket Voting 🐦</h1>
+  <div class="bracket" id="bracket"></div>
 
   <!-- Modal -->
   <div id="voteModal" class="modal">
@@ -41,42 +84,82 @@
       <button onclick="closeModal()">Close</button>
     </div>
   </div>
-  <script>    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+  <script>
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?gid=1366198750&single=true&output=csv"; // publish Matchups as CSV
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxUDTostkrNZ8FEQV9FHoLqYIr0PkQBlcl2NqUDf88v6iY27FUTV0bcuhn_cFkXeR4sdQ/exec";   // your Apps Script Web App
+
     let currentMatchId = null;
 
-    // Enable/disable matches based on date
-    document.querySelectorAll('.match').forEach(match => {
-      const matchDate = match.dataset.date;
-      const button = match.querySelector('button');
+    async function loadMatches() {
+      const response = await fetch(SHEET_URL);
+      const text = await response.text();
 
-      if (today === matchDate) {
-        // Voting open today
-        match.classList.remove('disabled');
-        button.disabled = false;
-        button.textContent = "Vote";
-        button.addEventListener('click', () => openModal(match));
-      } else if (today < matchDate) {
-        // Not yet open
-        match.classList.add('disabled');
-        button.disabled = true;
-        button.textContent = "Opens " + matchDate;
-      } else {
-        // Closed
-        match.classList.add('disabled');
-        button.disabled = true;
-        button.textContent = "Voting Closed";
-      }
-    });
+      const rows = text.trim().split("\n").map(r => r.split(","));
+      const headers = rows.shift(); // first row = headers
+
+      const bracketDiv = document.getElementById("bracket");
+      bracketDiv.innerHTML = "";
+
+      rows.forEach(row => {
+        const data = {};
+        headers.forEach((h, i) => data[h] = row[i]);
+
+        const matchDiv = document.createElement("div");
+        matchDiv.className = "match disabled";
+        matchDiv.dataset.date = data.Date;
+        matchDiv.dataset.matchid = data.MatchID;
+
+        matchDiv.innerHTML = `
+          <h3>Match ${data.MatchID}</h3>
+          <img src="${data.EntryA_ImageURL}" alt="${data.EntryA_Name}">
+          <div>${data.EntryA_Name}</div>
+          <span class="nominee">Nominated by ${data.EntryA_Nominee}</span>
+          <img src="${data.EntryB_ImageURL}" alt="${data.EntryB_Name}">
+          <div>${data.EntryB_Name}</div>
+          <span class="nominee">Nominated by ${data.EntryB_Nominee}</span>
+          <button disabled>Vote</button>
+        `;
+
+        bracketDiv.appendChild(matchDiv);
+      });
+
+      enableMatches();
+    }
+
+    function enableMatches() {
+      const today = new Date().toISOString().split('T')[0];
+
+      document.querySelectorAll('.match').forEach(match => {
+        const matchDate = match.dataset.date;
+        const button = match.querySelector('button');
+
+        if (today === matchDate) {
+          match.classList.remove('disabled');
+          button.disabled = false;
+          button.textContent = "Vote";
+          button.addEventListener('click', () => openModal(match));
+        } else if (today < matchDate) {
+          match.classList.add('disabled');
+          button.disabled = true;
+          button.textContent = "Opens " + matchDate;
+        } else {
+          match.classList.add('disabled');
+          button.disabled = true;
+          button.textContent = "Voting Closed";
+        }
+      });
+    }
 
     function openModal(match) {
       currentMatchId = match.dataset.matchid;
       const imgs = match.querySelectorAll('img');
-      const names = match.querySelectorAll('span');
+      const names = match.querySelectorAll('div');
       const choicesDiv = document.getElementById('choices');
       const modalTitle = document.getElementById('modalTitle');
       choicesDiv.innerHTML = "";
 
-      // Check if already voted in this match
+      // Check localStorage first
       const previousVote = localStorage.getItem("voted_match_" + currentMatchId);
       if (previousVote) {
         modalTitle.innerText = "You already voted";
@@ -121,24 +204,31 @@
       localStorage.setItem("voted_match_" + currentMatchId, choice);
 
       // Send to Google Apps Script
-      fetch("https://script.google.com/macros/s/AKfycbxUDTostkrNZ8FEQV9FHoLqYIr0PkQBlcl2NqUDf88v6iY27FUTV0bcuhn_cFkXeR4sdQ/exec", {
+      fetch(WEBAPP_URL, {
         method: "POST",
         body: JSON.stringify({
           matchId: currentMatchId,
           choice: choice,
-          voter: localStorage.getItem("voterId") || ""
+          voter: localStorage.getItem("voterId") || "" // optional
         }),
         headers: { "Content-Type": "application/json" }
       })
       .then(res => res.json())
       .then(data => {
-        document.getElementById('choices').innerHTML += `<p>✅ You voted for <b>${choice}</b></p>`;
+        if (data.status === "duplicate") {
+          document.getElementById('choices').innerHTML = `<p>⚠️ You already voted in this match.</p>`;
+        } else {
+          document.getElementById('choices').innerHTML += `<p>✅ You voted for <b>${choice}</b></p>`;
+        }
       })
       .catch(err => {
         console.error("Vote failed:", err);
         document.getElementById('choices').innerHTML += `<p style="color:red">❌ Vote failed. Please try again.</p>`;
       });
     }
+
+    // Run on page load
+    loadMatches();
   </script>
 </body>
 </html>
