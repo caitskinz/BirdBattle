@@ -11,75 +11,61 @@
     .bracket {
       display: flex;
       justify-content: center;
-      align-items: flex-start;
+      align-items: stretch;
       gap: 40px;
       margin: 30px auto;
       max-width: 1600px;
+      height: 90vh;
     }
     .side {
       display: flex;
       flex-direction: row;
       gap: 30px;
+      flex: 1;
     }
     .side.left { flex-direction: row-reverse; }
-    .center { display: flex; flex-direction: column; align-items: center; justify-content: center; }
+    .center { display: flex; flex-direction: column; justify-content: center; align-items: center; flex: 0 0 auto; }
 
     .round {
       display: flex;
       flex-direction: column;
-      align-items: center;
-      gap: 40px; /* add vertical space for connectors */
+      justify-content: space-around; /* even vertical spacing */
+      flex: 1;
       position: relative;
     }
-    .round h2 { margin-bottom: 15px; font-size: 1.2em; }
+    .round h2 { margin-bottom: 15px; font-size: 1.2em; text-align: center; }
 
-    /* Match Wrappers (for connectors) */
-    .match-wrapper {
-      position: relative;
+    /* Pair containers */
+    .pair {
       display: flex;
       flex-direction: column;
       align-items: center;
+      position: relative;
+      gap: 40px;
     }
-
-    /* Horizontal connector */
-    .side.left .match-wrapper::after {
+    /* Connector line for left side */
+    .side.left .pair::after {
       content: "";
       position: absolute;
       right: -30px;
-      top: 50%;
+      top: 25%;
+      height: 50%;
       width: 30px;
-      height: 2px;
-      background: #999;
+      border-right: 2px solid #999;
+      border-top: 2px solid #999;
+      border-bottom: 2px solid #999;
     }
-    .side.right .match-wrapper::after {
+    /* Connector line for right side */
+    .side.right .pair::after {
       content: "";
       position: absolute;
       left: -30px;
-      top: 50%;
+      top: 25%;
+      height: 50%;
       width: 30px;
-      height: 2px;
-      background: #999;
-    }
-
-    /* Vertical connector joining pairs (left) */
-    .side.left .match-wrapper:nth-child(odd)::before {
-      content: "";
-      position: absolute;
-      right: -30px;
-      top: 50%;
-      width: 2px;
-      height: calc(100% + 40px);
-      background: #999;
-    }
-    /* Vertical connector joining pairs (right) */
-    .side.right .match-wrapper:nth-child(odd)::before {
-      content: "";
-      position: absolute;
-      left: -30px;
-      top: 50%;
-      width: 2px;
-      height: calc(100% + 40px);
-      background: #999;
+      border-left: 2px solid #999;
+      border-top: 2px solid #999;
+      border-bottom: 2px solid #999;
     }
 
     /* Match Cards */
@@ -159,6 +145,7 @@
         flex-direction: column;
         gap: 20px;
         align-items: center;
+        height: auto;
       }
       .side {
         flex-direction: column !important;
@@ -172,8 +159,7 @@
         max-width: 350px;
       }
       /* Hide connectors on mobile */
-      .match-wrapper::after,
-      .match-wrapper::before {
+      .pair::after {
         display: none !important;
       }
     }
@@ -232,9 +218,6 @@
         const data = {};
         headers.forEach((h, i) => data[h] = row[i]);
 
-        const wrapper = document.createElement("div");
-        wrapper.className = "match-wrapper";
-
         const matchDiv = document.createElement("div");
         matchDiv.className = "match disabled";
         matchDiv.dataset.date = data.Date;
@@ -251,14 +234,11 @@
           <button disabled>Vote</button>
         `;
 
-        // Highlight winner if decided
         if (data.Winner && data.Winner.trim() !== "") {
           matchDiv.classList.add("winner");
         }
 
-        wrapper.appendChild(matchDiv);
-
-        // Place in correct round
+        // Figure out which container
         let targetId;
         const mid = parseInt(data.MatchID);
         if (mid >= 1 && mid <= 4) targetId = "round1-left";
@@ -270,7 +250,19 @@
         else if (mid === 15) targetId = "round4";
 
         const roundContainer = document.querySelector(`#${targetId} .matches`);
-        if (roundContainer) roundContainer.appendChild(wrapper);
+
+        // Wrap matches into pairs
+        let pair;
+        if (roundContainer.lastElementChild && roundContainer.lastElementChild.classList.contains("pair") &&
+            roundContainer.lastElementChild.childElementCount < 2) {
+          pair = roundContainer.lastElementChild;
+        } else {
+          pair = document.createElement("div");
+          pair.className = "pair";
+          roundContainer.appendChild(pair);
+        }
+
+        pair.appendChild(matchDiv);
       });
 
       enableMatches();
