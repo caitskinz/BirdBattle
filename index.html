@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bird Bracket</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #f2f2f2; }
+    .bracket { display: flex; gap: 40px; justify-content: center; margin-top: 50px; flex-wrap: wrap; }
+    .match { width: 200px; padding: 20px; border: 2px solid #ccc; border-radius: 10px; background: #fff; text-align: center; margin: 10px; }
+    .match.disabled { opacity: 0.5; pointer-events: none; }
+    .match img { width: 80px; height: 80px; border-radius: 50%; margin: 10px; }
+    button { padding: 10px 20px; margin-top: 10px; border: none; border-radius: 5px; background: #007BFF; color: white; cursor: pointer; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* Modal */
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); justify-content: center; align-items: center; }
+    .modal-content { background: white; padding: 20px; border-radius: 10px; text-align: center; max-width: 400px; }
+    .modal-content img { width: 120px; height: 120px; margin: 20px; cursor: pointer; border: 3px solid transparent; border-radius: 10px; transition: 0.2s; }
+    .modal-content img:hover { border: 3px solid #007BFF; }
+  </style>
+</head>
+<body>
+  <div class="bracket">
+    <!-- Example Match -->
+    <div class="match disabled" data-date="2025-09-20" data-matchid="1">
+      <h3>Match 1</h3>
+      <img src="tui.jpg" alt="Tui"><br>
+      <span>Tui</span><br>
+      <img src="fantail.jpg" alt="Fantail"><br>
+      <span>Fantail</span><br>
+      <button disabled>Vote</button>
+    </div>
+    <!-- Duplicate this block for all matches, updating data-date and data-matchid -->
+  </div>
+
+  <!-- Modal -->
+  <div id="voteModal" class="modal">
+    <div class="modal-content">
+      <h2 id="modalTitle">Choose your bird</h2>
+      <div id="choices"></div>
+      <button onclick="closeModal()">Close</button>
+    </div>
+  </div>
+  <script>    const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+    let currentMatchId = null;
+
+    // Enable/disable matches based on date
+    document.querySelectorAll('.match').forEach(match => {
+      const matchDate = match.dataset.date;
+      const button = match.querySelector('button');
+
+      if (today === matchDate) {
+        // Voting open today
+        match.classList.remove('disabled');
+        button.disabled = false;
+        button.textContent = "Vote";
+        button.addEventListener('click', () => openModal(match));
+      } else if (today < matchDate) {
+        // Not yet open
+        match.classList.add('disabled');
+        button.disabled = true;
+        button.textContent = "Opens " + matchDate;
+      } else {
+        // Closed
+        match.classList.add('disabled');
+        button.disabled = true;
+        button.textContent = "Voting Closed";
+      }
+    });
+
+    function openModal(match) {
+      currentMatchId = match.dataset.matchid;
+      const imgs = match.querySelectorAll('img');
+      const names = match.querySelectorAll('span');
+      const choicesDiv = document.getElementById('choices');
+      const modalTitle = document.getElementById('modalTitle');
+      choicesDiv.innerHTML = "";
+
+      // Check if already voted in this match
+      const previousVote = localStorage.getItem("voted_match_" + currentMatchId);
+      if (previousVote) {
+        modalTitle.innerText = "You already voted";
+        choicesDiv.innerHTML = `<p>✅ You voted for <b>${previousVote}</b></p>`;
+        document.getElementById('voteModal').style.display = 'flex';
+        return;
+      }
+
+      modalTitle.innerText = "Choose your bird";
+
+      [0,1].forEach(i => {
+        const choiceImg = document.createElement('img');
+        choiceImg.src = imgs[i].src;
+        choiceImg.alt = names[i].innerText;
+        choiceImg.dataset.choice = names[i].innerText;
+        choiceImg.onclick = () => sendVote(choiceImg);
+        choicesDiv.appendChild(choiceImg);
+      });
+
+      document.getElementById('voteModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('voteModal').style.display = 'none';
+    }
+
+    function sendVote(choiceImg) {
+      const choice = choiceImg.dataset.choice;
+
+      // Disable further clicks
+      const allChoices = document.querySelectorAll('#choices img');
+      allChoices.forEach(img => {
+        img.style.pointerEvents = "none";
+        img.style.opacity = "0.5";
+      });
+
+      // Highlight chosen
+      choiceImg.style.opacity = "1";
+      choiceImg.style.border = "3px solid green";
+
+      // Save locally
+      localStorage.setItem("voted_match_" + currentMatchId, choice);
+
+      // Send to Google Apps Script
+      fetch("https://script.google.com/macros/s/AKfycbxUDTostkrNZ8FEQV9FHoLqYIr0PkQBlcl2NqUDf88v6iY27FUTV0bcuhn_cFkXeR4sdQ/exec", {
+        method: "POST",
+        body: JSON.stringify({
+          matchId: currentMatchId,
+          choice: choice,
+          voter: localStorage.getItem("voterId") || ""
+        }),
+        headers: { "Content-Type": "application/json" }
+      })
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById('choices').innerHTML += `<p>✅ You voted for <b>${choice}</b></p>`;
+      })
+      .catch(err => {
+        console.error("Vote failed:", err);
+        document.getElementById('choices').innerHTML += `<p style="color:red">❌ Vote failed. Please try again.</p>`;
+      });
+    }
+  </script>
+</body>
+</html>
