@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <title>Bird Bracket Voting</title>
@@ -21,295 +20,103 @@
       padding: 10px;
     }
 
+    /* Default visibility */
+    .bracket { display: flex; }
+    .mobile-rounds { display: none; }
+
     /* Bracket Layout (Desktop) */
     .bracket {
-      display: flex;
       justify-content: center;
       align-items: stretch;
       gap: 40px;
       margin: 30px auto;
       max-width: 1600px;
     }
-
-    .side {
-      display: flex;
-      flex-direction: row;
-      gap: 30px;
-      flex: 1;
-    }
-
-    .side.left {
-      flex-direction: row-reverse;
-    }
-
-    .center {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      flex: 0 0 auto;
-    }
-
-    .round {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      flex: 1;
-      position: relative;
-    }
-
-    .round h2 {
-      margin-bottom: 15px;
-      font-size: 1.2em;
-      text-align: center;
-    }
+    .side { display: flex; flex-direction: row; gap: 30px; flex: 1; }
+    .side.left { flex-direction: row-reverse; }
+    .center { display: flex; flex-direction: column; justify-content: center; align-items: center; flex: 0 0 auto; }
+    .round { display: flex; flex-direction: column; justify-content: space-around; flex: 1; position: relative; }
+    .round h2 { margin-bottom: 15px; font-size: 1.2em; text-align: center; }
 
     /* Pair connectors (desktop only) */
-    .pair {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      gap: 40px;
-    }
-
+    .pair { display: flex; flex-direction: column; align-items: center; position: relative; gap: 40px; }
     .side.left .pair::after {
-      content: "";
-      position: absolute;
-      right: -30px;
-      top: 25%;
-      height: 50%;
-      width: 30px;
-      border-right: 2px solid #999;
-      border-top: 2px solid #999;
-      border-bottom: 2px solid #999;
+      content: ""; position: absolute; right: -30px; top: 25%;
+      height: 50%; width: 30px;
+      border-right: 2px solid #999; border-top: 2px solid #999; border-bottom: 2px solid #999;
     }
-
     .side.right .pair::after {
-      content: "";
-      position: absolute;
-      left: -30px;
-      top: 25%;
-      height: 50%;
-      width: 30px;
-      border-left: 2px solid #999;
-      border-top: 2px solid #999;
-      border-bottom: 2px solid #999;
+      content: ""; position: absolute; left: -30px; top: 25%;
+      height: 50%; width: 30px;
+      border-left: 2px solid #999; border-top: 2px solid #999; border-bottom: 2px solid #999;
     }
 
     /* Match Cards */
     .match {
-      width: 220px;
-      padding: 15px;
-      border: 3px solid #00395d;
-      border-radius: 12px;
-      background: #fff;
-      text-align: center;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      width: 220px; padding: 15px;
+      border: 3px solid #00395d; border-radius: 12px;
+      background: #fff; text-align: center;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
       transition: 0.2s;
     }
-
-    .match.disabled {
-      opacity: 0.6;
-      pointer-events: none;
-    }
-
-    .match h3 {
-      margin: 5px 0 10px;
-      font-size: 1em;
-    }
-
+    .match.disabled { opacity: 0.6; pointer-events: none; }
+    .match h3 { margin: 5px 0 10px; font-size: 1em; }
     .match img {
-      width: 80px;
-      height: 80px;
-      border-radius: 20px;
-      margin: 5px 0;
-      object-fit: cover;
-      border: solid 3px #00395d;
+      width: 80px; height: 80px; border-radius: 20px; margin: 5px 0;
+      object-fit: cover; border: solid 3px #00395d;
     }
-
-    .nominee {
-      font-size: 0.8em;
-      color: #666;
-      display: block;
-      margin-bottom: 8px;
-    }
-
-    button {
-      padding: 8px 15px;
-      border: none;
-      border-radius: 6px;
-      background: #007BFF;
-      color: white;
-      cursor: pointer;
-      margin-top: 8px;
-    }
-
-    button:hover:not(:disabled) {
-      background: #0056b3;
-    }
-
-    button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
-
-    .winner {
-      border-color: #28a745 !important;
-      background: #e9f9ef !important;
-    }
+    .nominee { font-size: 0.8em; color: #666; display: block; margin-bottom: 8px; }
+    button { padding: 8px 15px; border: none; border-radius: 6px; background: #007BFF; color: white; cursor: pointer; margin-top: 8px; }
+    button:hover:not(:disabled) { background: #0056b3; }
+    button:disabled { background: #ccc; cursor: not-allowed; }
+    .winner { border-color: #28a745 !important; background: #e9f9ef !important; }
 
     /* Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      justify-content: center;
-      align-items: center;
-    }
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6); justify-content: center; align-items: center; }
+    .modal-content { background: white; padding: 25px; border-radius: 12px; text-align: center; max-width: 420px; }
+    .modal-content h2 { margin-bottom: 15px; }
+    .modal-content img { width: 120px; height: 120px; margin: 15px; cursor: pointer; border: 3px solid transparent; border-radius: 12px; object-fit: cover; }
+    .modal-content img:hover { border: 3px solid #007BFF; }
 
-    .modal-content {
-      background: white;
-      padding: 25px;
-      border-radius: 12px;
-      text-align: center;
-      max-width: 420px;
-    }
-
-    .modal-content h2 {
-      margin-bottom: 15px;
-    }
-
-    .modal-content img {
-      width: 120px;
-      height: 120px;
-      margin: 15px;
-      cursor: pointer;
-      border: 3px solid transparent;
-      border-radius: 12px;
-      object-fit: cover;
-    }
-
-    .modal-content img:hover {
-      border: 3px solid #007BFF;
-    }
-
-    /* Default: desktop */
-    .bracket {
-      display: flex;
-    }
-
-    .mobile-rounds {
-      display: none;
-    }
-
-    /* Mobile override */
+    /* 📱 Mobile stacked rounds */
     @media (max-width: 768px) {
-      .bracket {
-        display: none;
-      }
-
-      .mobile-rounds {
-        display: block;
-      }
-    }
-
-
-    /* 📱 Mobile: stacked rounds */
-    @media (max-width: 768px) {
-      .bracket {
-        display: none;
-      }
-
-      /* hide desktop bracket */
-
-      .mobile-rounds {
-        display: block;
-        padding: 10px;
-      }
+      .bracket { display: none; }
+      .mobile-rounds { display: block; padding: 10px; }
 
       .round-selector {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
+        display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;
       }
-
       .round-selector button {
-        padding: 6px 12px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        background: #00395d;
-        color: white;
+        padding: 6px 12px; border: none; border-radius: 6px; cursor: pointer;
+        background: #00395d; color: white;
       }
+      .round-selector button.active { background: #007BFF; }
 
-      .round-selector button.active {
-        background: #007BFF;
-      }
+      .mobile-round { display: none; flex-direction: column; align-items: center; gap: 20px; }
+      .mobile-round.active { display: flex; }
 
-      .mobile-round {
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
-      }
-
-      .mobile-round.active {
-        display: flex;
-      }
-
-      .match {
-        width: 95%;
-        max-width: 400px;
-      }
+      .match { width: 95%; max-width: 400px; }
     }
   </style>
 </head>
-
 <body>
   <h1>🥊 💥 🐦 Battle of the Birds 🐦 💥 🥊</h1>
 
   <!-- Desktop Bracket -->
   <div class="bracket">
     <div class="side left">
-      <div class="round" id="round3-left">
-        <h2>Semifinal</h2>
-        <div class="matches"></div>
-      </div>
-      <div class="round" id="round2-left">
-        <h2>Quarterfinals</h2>
-        <div class="matches"></div>
-      </div>
-      <div class="round" id="round1-left">
-        <h2>Round 1</h2>
-        <div class="matches"></div>
-      </div>
+      <div class="round" id="round3-left"><h2>Semifinal</h2><div class="matches"></div></div>
+      <div class="round" id="round2-left"><h2>Quarterfinals</h2><div class="matches"></div></div>
+      <div class="round" id="round1-left"><h2>Round 1</h2><div class="matches"></div></div>
     </div>
     <div class="center">
-      <div class="round" id="round4">
-        <h2>Final</h2>
-        <div class="matches"></div>
-      </div>
+      <div class="round" id="round4"><h2>Final</h2><div class="matches"></div></div>
     </div>
     <div class="side right">
-      <div class="round" id="round3-right">
-        <h2>Semifinal</h2>
-        <div class="matches"></div>
-      </div>
-      <div class="round" id="round2-right">
-        <h2>Quarterfinals</h2>
-        <div class="matches"></div>
-      </div>
-      <div class="round" id="round1-right">
-        <h2>Round 1</h2>
-        <div class="matches"></div>
-      </div>
+      <div class="round" id="round3-right"><h2>Semifinal</h2><div class="matches"></div></div>
+      <div class="round" id="round2-right"><h2>Quarterfinals</h2><div class="matches"></div></div>
+      <div class="round" id="round1-right"><h2>Round 1</h2><div class="matches"></div></div>
     </div>
   </div>
 
@@ -321,22 +128,10 @@
       <button onclick="showMobileRound('round3')">Semifinals</button>
       <button onclick="showMobileRound('round4')">Final</button>
     </div>
-    <div id="mobile-round1" class="mobile-round active">
-      <h2>Round 1</h2>
-      <div class="matches"></div>
-    </div>
-    <div id="mobile-round2" class="mobile-round">
-      <h2>Quarterfinals</h2>
-      <div class="matches"></div>
-    </div>
-    <div id="mobile-round3" class="mobile-round">
-      <h2>Semifinals</h2>
-      <div class="matches"></div>
-    </div>
-    <div id="mobile-round4" class="mobile-round">
-      <h2>Final</h2>
-      <div class="matches"></div>
-    </div>
+    <div id="mobile-round1" class="mobile-round active"><h2>Round 1</h2><div class="matches"></div></div>
+    <div id="mobile-round2" class="mobile-round"><h2>Quarterfinals</h2><div class="matches"></div></div>
+    <div id="mobile-round3" class="mobile-round"><h2>Semifinals</h2><div class="matches"></div></div>
+    <div id="mobile-round4" class="mobile-round"><h2>Final</h2><div class="matches"></div></div>
   </div>
 
   <!-- Modal -->
@@ -413,7 +208,7 @@
         }
         if (pair) pair.appendChild(matchDiv.cloneNode(true));
 
-        // mobile (no pairs, just stack)
+        // mobile
         const mobileContainer = document.querySelector(`#${mobileTarget} .matches`);
         mobileContainer.appendChild(matchDiv);
       });
@@ -489,5 +284,4 @@
     loadMatches();
   </script>
 </body>
-
 </html>
