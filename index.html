@@ -19,11 +19,9 @@
       background-color: white;
       border-radius: 20px;
       padding: 10px;
-      width: auto;
-      align-items: center;
     }
 
-    /* Bracket Layout */
+    /* Bracket Layout (Desktop) */
     .bracket {
       display: flex;
       justify-content: center;
@@ -66,7 +64,7 @@
       text-align: center;
     }
 
-    /* Pair containers */
+    /* Pair connectors (desktop only) */
     .pair {
       display: flex;
       flex-direction: column;
@@ -75,7 +73,6 @@
       gap: 40px;
     }
 
-    /* Connector line for left side */
     .side.left .pair::after {
       content: "";
       position: absolute;
@@ -88,7 +85,6 @@
       border-bottom: 2px solid #999;
     }
 
-    /* Connector line for right side */
     .side.right .pair::after {
       content: "";
       position: absolute;
@@ -147,7 +143,6 @@
       color: white;
       cursor: pointer;
       margin-top: 8px;
-      transition: background 0.2s;
     }
 
     button:hover:not(:disabled) {
@@ -159,7 +154,6 @@
       cursor: not-allowed;
     }
 
-    /* Winner Highlight */
     .winner {
       border-color: #28a745 !important;
       background: #e9f9ef !important;
@@ -184,7 +178,6 @@
       border-radius: 12px;
       text-align: center;
       max-width: 420px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 
     .modal-content h2 {
@@ -198,7 +191,6 @@
       cursor: pointer;
       border: 3px solid transparent;
       border-radius: 12px;
-      transition: 0.2s;
       object-fit: cover;
     }
 
@@ -206,40 +198,75 @@
       border: 3px solid #007BFF;
     }
 
-    /* 📱 Mobile Layout */
+    /* Default: desktop */
+    .bracket {
+      display: flex;
+    }
+
+    .mobile-rounds {
+      display: none;
+    }
+
+    /* Mobile override */
     @media (max-width: 768px) {
       .bracket {
+        display: none;
+      }
+
+      .mobile-rounds {
+        display: block;
+      }
+    }
+
+
+    /* 📱 Mobile: stacked rounds */
+    @media (max-width: 768px) {
+      .bracket {
+        display: none;
+      }
+
+      /* hide desktop bracket */
+
+      .mobile-rounds {
+        display: block;
+        padding: 10px;
+      }
+
+      .round-selector {
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .round-selector button {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        background: #00395d;
+        color: white;
+      }
+
+      .round-selector button.active {
+        background: #007BFF;
+      }
+
+      .mobile-round {
+        display: none;
         flex-direction: column;
-        gap: 20px;
         align-items: center;
-        height: auto;
-      }
-
-      .side {
-        flex-direction: column !important;
         gap: 20px;
-        width: 100%;
       }
 
-      .center {
-        order: -1;
-        width: 100%;
-      }
-
-      .round {
-        justify-content: flex-start;
-        width: 100%;
-        align-items: center;
+      .mobile-round.active {
+        display: flex;
       }
 
       .match {
         width: 95%;
         max-width: 400px;
-      }
-
-      /* Hide connectors on mobile */
-      .pair::after {
-        display: none !important;
       }
     }
   </style>
@@ -247,6 +274,8 @@
 
 <body>
   <h1>🥊 💥 🐦 Battle of the Birds 🐦 💥 🥊</h1>
+
+  <!-- Desktop Bracket -->
   <div class="bracket">
     <div class="side left">
       <div class="round" id="round3-left">
@@ -262,14 +291,12 @@
         <div class="matches"></div>
       </div>
     </div>
-
     <div class="center">
       <div class="round" id="round4">
         <h2>Final</h2>
         <div class="matches"></div>
       </div>
     </div>
-
     <div class="side right">
       <div class="round" id="round3-right">
         <h2>Semifinal</h2>
@@ -286,6 +313,32 @@
     </div>
   </div>
 
+  <!-- Mobile Rounds -->
+  <div class="mobile-rounds">
+    <div class="round-selector">
+      <button onclick="showMobileRound('round1')" class="active">Round 1</button>
+      <button onclick="showMobileRound('round2')">Quarterfinals</button>
+      <button onclick="showMobileRound('round3')">Semifinals</button>
+      <button onclick="showMobileRound('round4')">Final</button>
+    </div>
+    <div id="mobile-round1" class="mobile-round active">
+      <h2>Round 1</h2>
+      <div class="matches"></div>
+    </div>
+    <div id="mobile-round2" class="mobile-round">
+      <h2>Quarterfinals</h2>
+      <div class="matches"></div>
+    </div>
+    <div id="mobile-round3" class="mobile-round">
+      <h2>Semifinals</h2>
+      <div class="matches"></div>
+    </div>
+    <div id="mobile-round4" class="mobile-round">
+      <h2>Final</h2>
+      <div class="matches"></div>
+    </div>
+  </div>
+
   <!-- Modal -->
   <div id="voteModal" class="modal">
     <div class="modal-content">
@@ -296,34 +349,35 @@
   </div>
 
   <script>
-    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?gid=1366198750&single=true&output=csv"; 
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxUDTostkrNZ8FEQV9FHoLqYIr0PkQBlcl2NqUDf88v6iY27FUTV0bcuhn_cFkXeR4sdQ/exec";   
-
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?gid=1366198750&single=true&output=csv";
+    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbxUDTostkrNZ8FEQV9FHoLqYIr0PkQBlcl2NqUDf88v6iY27FUTV0bcuhn_cFkXeR4sdQ/exec";
     let currentMatchId = null;
+
+    function showMobileRound(round) {
+      document.querySelectorAll('.mobile-round').forEach(r => r.classList.remove('active'));
+      document.querySelectorAll('.round-selector button').forEach(b => b.classList.remove('active'));
+      document.getElementById('mobile-' + round).classList.add('active');
+      document.querySelector(`.round-selector button[onclick="showMobileRound('${round}')"]`).classList.add('active');
+    }
 
     async function loadMatches() {
       const response = await fetch(SHEET_URL);
       const text = await response.text();
-
       const rows = text.trim().split("\n").map(r => r.split(","));
       const headers = rows.shift();
 
       // Clear containers
-      ["round1-left", "round2-left", "round3-left",
-        "round1-right", "round2-right", "round3-right",
-        "round4"].forEach(id => {
-          document.querySelector(`#${id} .matches`).innerHTML = "";
-        });
+      ["round1-left","round2-left","round3-left","round1-right","round2-right","round3-right","round4",
+       "mobile-round1","mobile-round2","mobile-round3","mobile-round4"].forEach(id => {
+        document.querySelector(`#${id} .matches`).innerHTML = "";
+      });
 
       rows.forEach(row => {
-        const data = {};
-        headers.forEach((h, i) => data[h] = row[i]);
-
+        const data = {}; headers.forEach((h,i) => data[h] = row[i]);
         const matchDiv = document.createElement("div");
         matchDiv.className = "match disabled";
         matchDiv.dataset.date = data.Date;
         matchDiv.dataset.matchid = data.MatchID;
-
         matchDiv.innerHTML = `
           <h3>Match ${data.MatchID}</h3>
           <img src="${data.EntryA_ImageURL}" alt="${data.EntryA_Name}">
@@ -334,35 +388,34 @@
           <span class="nominee">Nominated by ${data.EntryB_Nominee}</span>
           <button disabled>Vote</button>
         `;
+        if (data.Winner && data.Winner.trim() !== "") matchDiv.classList.add("winner");
 
-        if (data.Winner && data.Winner.trim() !== "") {
-          matchDiv.classList.add("winner");
-        }
-
-        let targetId;
+        let targetId, mobileTarget;
         const mid = parseInt(data.MatchID);
-        if (mid >= 1 && mid <= 4) targetId = "round1-left";
-        else if (mid >= 5 && mid <= 8) targetId = "round1-right";
-        else if (mid === 9 || mid === 10) targetId = "round2-left";
-        else if (mid === 11 || mid === 12) targetId = "round2-right";
-        else if (mid === 13) targetId = "round3-left";
-        else if (mid === 14) targetId = "round3-right";
-        else if (mid === 15) targetId = "round4";
+        if (mid >= 1 && mid <= 4) { targetId="round1-left"; mobileTarget="mobile-round1"; }
+        else if (mid >= 5 && mid <= 8) { targetId="round1-right"; mobileTarget="mobile-round1"; }
+        else if (mid === 9 || mid === 10) { targetId="round2-left"; mobileTarget="mobile-round2"; }
+        else if (mid === 11 || mid === 12) { targetId="round2-right"; mobileTarget="mobile-round2"; }
+        else if (mid === 13) { targetId="round3-left"; mobileTarget="mobile-round3"; }
+        else if (mid === 14) { targetId="round3-right"; mobileTarget="mobile-round3"; }
+        else if (mid === 15) { targetId="round4"; mobileTarget="mobile-round4"; }
 
+        // desktop
         const roundContainer = document.querySelector(`#${targetId} .matches`);
-
         let pair;
-        if (roundContainer.lastElementChild &&
-          roundContainer.lastElementChild.classList.contains("pair") &&
-          roundContainer.lastElementChild.childElementCount < 2) {
+        if (roundContainer && roundContainer.lastElementChild && roundContainer.lastElementChild.classList.contains("pair") &&
+            roundContainer.lastElementChild.childElementCount < 2) {
           pair = roundContainer.lastElementChild;
-        } else {
+        } else if (roundContainer) {
           pair = document.createElement("div");
           pair.className = "pair";
           roundContainer.appendChild(pair);
         }
+        if (pair) pair.appendChild(matchDiv.cloneNode(true));
 
-        pair.appendChild(matchDiv);
+        // mobile (no pairs, just stack)
+        const mobileContainer = document.querySelector(`#${mobileTarget} .matches`);
+        mobileContainer.appendChild(matchDiv);
       });
 
       enableMatches();
@@ -370,24 +423,16 @@
 
     function enableMatches() {
       const today = new Date().toISOString().split('T')[0];
-
       document.querySelectorAll('.match').forEach(match => {
         const matchDate = match.dataset.date;
         const button = match.querySelector('button');
-
         if (today === matchDate) {
-          match.classList.remove('disabled');
-          button.disabled = false;
-          button.textContent = "Vote";
+          match.classList.remove('disabled'); button.disabled=false; button.textContent="Vote";
           button.addEventListener('click', () => openModal(match));
         } else if (today < matchDate) {
-          match.classList.add('disabled');
-          button.disabled = true;
-          button.textContent = "Opens " + matchDate;
+          match.classList.add('disabled'); button.disabled=true; button.textContent="Opens "+matchDate;
         } else {
-          match.classList.add('disabled');
-          button.disabled = true;
-          button.textContent = "Voting Closed";
+          match.classList.add('disabled'); button.disabled=true; button.textContent="Voting Closed";
         }
       });
     }
@@ -404,66 +449,45 @@
       if (previousVote) {
         modalTitle.innerText = "You already voted";
         choicesDiv.innerHTML = `<p>✅ You voted for <b>${previousVote}</b></p>`;
-        document.getElementById('voteModal').style.display = 'flex';
-        return;
+        document.getElementById('voteModal').style.display = 'flex'; return;
       }
 
       modalTitle.innerText = "Choose your bird";
-
-      [0, 1].forEach(i => {
+      [0,1].forEach(i => {
         const choiceImg = document.createElement('img');
-        choiceImg.src = imgs[i].src;
-        choiceImg.alt = names[i].innerText;
+        choiceImg.src = imgs[i].src; choiceImg.alt = names[i].innerText;
         choiceImg.dataset.choice = names[i].innerText;
         choiceImg.onclick = () => sendVote(choiceImg);
         choicesDiv.appendChild(choiceImg);
       });
-
       document.getElementById('voteModal').style.display = 'flex';
     }
-
-    function closeModal() {
-      document.getElementById('voteModal').style.display = 'none';
-    }
-
+    function closeModal() { document.getElementById('voteModal').style.display='none'; }
     function sendVote(choiceImg) {
       const choice = choiceImg.dataset.choice;
-
       const allChoices = document.querySelectorAll('#choices img');
-      allChoices.forEach(img => {
-        img.style.pointerEvents = "none";
-        img.style.opacity = "0.5";
-      });
-
-      choiceImg.style.opacity = "1";
-      choiceImg.style.border = "3px solid green";
-
+      allChoices.forEach(img => { img.style.pointerEvents="none"; img.style.opacity="0.5"; });
+      choiceImg.style.opacity="1"; choiceImg.style.border="3px solid green";
       localStorage.setItem("voted_match_" + currentMatchId, choice);
 
       fetch(WEBAPP_URL, {
-        method: "POST",
-        body: JSON.stringify({
-          matchId: currentMatchId,
-          choice: choice,
-          voter: localStorage.getItem("voterId") || ""
-        }),
-        headers: { "Content-Type": "application/json" }
+        method:"POST",
+        body:JSON.stringify({matchId:currentMatchId, choice:choice, voter:localStorage.getItem("voterId")||""}),
+        headers:{"Content-Type":"application/json"}
       })
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === "duplicate") {
-            document.getElementById('choices').innerHTML = `<p>⚠️ You already voted in this match.</p>`;
-          } else {
-            document.getElementById('choices').innerHTML += `<p>✅ You voted for <b>${choice}</b></p>`;
-          }
-        })
-        .catch(err => {
-          console.error("Vote failed:", err);
-          document.getElementById('choices').innerHTML += `<p style="color:red">❌ Vote failed. Please try again.</p>`;
-        });
+      .then(res=>res.json())
+      .then(data=>{
+        if(data.status==="duplicate"){ document.getElementById('choices').innerHTML=`<p>⚠️ You already voted in this match.</p>`; }
+        else { document.getElementById('choices').innerHTML+=`<p>✅ You voted for <b>${choice}</b></p>`; }
+      })
+      .catch(err=>{
+        console.error("Vote failed:",err);
+        document.getElementById('choices').innerHTML+=`<p style="color:red">❌ Vote failed. Please try again.</p>`;
+      });
     }
 
     loadMatches();
   </script>
 </body>
+
 </html>
