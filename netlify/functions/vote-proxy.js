@@ -33,7 +33,7 @@ export async function handler(event, context) {
 
     // 👇 Replace with your Apps Script Web App URL (must end in /exec)
     const APPS_SCRIPT_URL =
-      "https://script.google.com/macros/s/AKfycbwCQwcNOOTY2ygff0tSaMb7hFpWwgFQ-jJPvnnHvajuZrkpfRWAmu_mAQzRfCXCj7pe/exec";
+      "https://script.google.com/macros/s/AKfycbyqG2vLRGcmwTxw8iGqXGZ7OAY1729G_lGvWgHwekVFePWxBDb-JxkCU1Py0e-sIIFrmQ/exec";
 
     const res = await fetch(APPS_SCRIPT_URL, {
       method: "POST",
