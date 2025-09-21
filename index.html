@@ -579,28 +579,19 @@ async function loadMatches() {
 
 /* ---------- Date-aware enableMatches ---------- */
 function enableMatches() {
-  const today = new Date();
-  const todayStr = today.toISOString().split('T')[0]; // normalize
+  const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
 
   document.querySelectorAll('.match').forEach(match => {
-    const matchDateStr = (match.dataset.date || "").trim();
+    const rawDate = (match.dataset.date || "").trim();
+    const matchStr = rawDate.split(" ")[0].trim(); // strip time if present
     const button = match.querySelector('button');
     match.classList.remove("live");
 
-    if (!matchDateStr) {
+    if (!matchStr) {
       button.disabled = true;
       button.textContent = "No Date";
       return;
     }
-
-    // Normalize match date
-    const parsedMatchDate = new Date(matchDateStr);
-    if (isNaN(parsedMatchDate)) {
-      button.disabled = true;
-      button.textContent = "Invalid Date";
-      return;
-    }
-    const matchStr = parsedMatchDate.toISOString().split('T')[0];
 
     if (todayStr === matchStr) {
       match.classList.remove('disabled');
@@ -620,19 +611,14 @@ function enableMatches() {
 
 /* ---------- Mobile auto-open today’s round ---------- */
 function openTodayRound() {
-  const today = new Date().toISOString().split('T')[0];
+  const todayStr = new Date().toISOString().split('T')[0];
   let todayMatch = null;
 
   document.querySelectorAll('.match').forEach(match => {
-    const matchDateStr = (match.dataset.date || "").trim();
-    if (!matchDateStr) return;
-
-    const parsedMatchDate = new Date(matchDateStr);
-    if (!isNaN(parsedMatchDate)) {
-      const matchStr = parsedMatchDate.toISOString().split('T')[0];
-      if (matchStr === today) {
-        todayMatch = match;
-      }
+    const rawDate = (match.dataset.date || "").trim();
+    const matchStr = rawDate.split(" ")[0].trim();
+    if (matchStr === todayStr) {
+      todayMatch = match;
     }
   });
 
