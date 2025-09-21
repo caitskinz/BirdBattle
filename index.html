@@ -16,17 +16,20 @@ body {
 }
 
 h1 {
+  display: block;
   text-align: center;
-  margin: 20px;
+  margin: 20px auto;
   font-size: 2.5em;
   font-weight: bold;
   background: linear-gradient(90deg, #ffd23f, #ff7c43);
   color: #1c2541;
   border-radius: 16px;
   padding: 15px 25px;
-  display: inline-block;
   box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  width: fit-content;         /* shrink wrap */
+  max-width: 90%;             /* responsive */
 }
+
 
 /* ===== Bracket Layout ===== */
 .bracket {
