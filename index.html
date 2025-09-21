@@ -425,256 +425,272 @@ let currentMatchId = null;
 
 const PLACEHOLDER_IMG = "https://raw.githubusercontent.com/caitskinz/BirdBattle/refs/heads/main/placeholder.jpeg";
 
-function safeImage(url) {
-    if (!url || url === "#N/A" || url.trim() === "") {
-        return PLACEHOLDER_IMG;
-    }
-    return url;
+/* ---------- Helpers ---------- */
+function isNA(value) {
+  const v = String(value ?? "").trim();
+  return v === "" || v.toUpperCase() === "#N/A" || v.toUpperCase() === "N/A";
 }
-
-function cleanText(text) {
-    return (text === "#N/A" || text === "N/A" || text.trim() === "") ? "TBD" : text;
+function cleanText(value, fallback = "TBD") {
+  const v = String(value ?? "").trim();
+  return isNA(v) ? fallback : v;
+}
+function safeImage(url) {
+  const v = String(url ?? "").trim();
+  return isNA(v) ? PLACEHOLDER_IMG : v;
 }
 
 function showMobileRound(round) {
-    document.querySelectorAll('.mobile-round').forEach(r => r.classList.remove('active'));
-    document.querySelectorAll('.round-selector button').forEach(b => b.classList.remove('active'));
-    document.getElementById('mobile-' + round).classList.add('active');
-    document.querySelector(`.round-selector button[onclick="showMobileRound('${round}')"]`).classList.add('active');
+  document.querySelectorAll('.mobile-round').forEach(r => r.classList.remove('active'));
+  document.querySelectorAll('.round-selector button').forEach(b => b.classList.remove('active'));
+  document.getElementById('mobile-' + round).classList.add('active');
+  document.querySelector(`.round-selector button[onclick="showMobileRound('${round}')"]`).classList.add('active');
 }
 
 function parseCSV(text) {
-    return text.trim().split("\n").map(line => {
-        const regex = /("([^"]*)"|[^,]+)/g;
-        const row = [];
-        let match;
-        while ((match = regex.exec(line))) {
-            row.push(match[2] !== undefined ? match[2] : match[0]);
-        }
-        return row;
-    });
+  return text.trim().split("\n").map(line => {
+    const regex = /("([^"]*)"|[^,]+)/g;
+    const row = [];
+    let match;
+    while ((match = regex.exec(line))) {
+      row.push(match[2] !== undefined ? match[2] : match[0]);
+    }
+    return row;
+  });
 }
 
+/* ---------- Main Render ---------- */
 async function loadMatches() {
-    const response = await fetch(SHEET_URL);
-    const text = await response.text();
-    const rows = parseCSV(text);
-    const headers = rows.shift();
-    const headerMap = {};
-    headers.forEach((h, i) => headerMap[h.trim()] = i);
+  const response = await fetch(SHEET_URL);
+  const text = await response.text();
+  const rows = parseCSV(text);
+  const headers = rows.shift();
+  const headerMap = {};
+  headers.forEach((h, i) => headerMap[h.trim()] = i);
 
-    // clear old matches
-    ["round1-left", "round2-left", "round3-left", "round1-right", "round2-right", "round3-right", "round4",
-        "mobile-round1", "mobile-round2", "mobile-round3", "mobile-round4"].forEach(id => {
-            document.querySelector(`#${id} .matches`).innerHTML = "";
-        });
+  // clear old matches
+  ["round1-left","round2-left","round3-left","round1-right","round2-right","round3-right","round4",
+   "mobile-round1","mobile-round2","mobile-round3","mobile-round4"].forEach(id => {
+    const el = document.querySelector(`#${id} .matches`);
+    if (el) el.innerHTML = "";
+  });
 
-    rows.forEach(row => {
-        const data = {};
-        Object.keys(headerMap).forEach(h => {
-            const value = row[headerMap[h]] || "";
-            data[h] = cleanText(value); // ✅ sanitize all fields
-        });
+  rows.forEach(row => {
+    // Raw values
+    const raw = {};
+    Object.keys(headerMap).forEach(h => raw[h] = row[headerMap[h]] ?? "");
 
-        const matchDesktop = document.createElement("div");
-        matchDesktop.className = "match disabled";
-        matchDesktop.dataset.date = data.Date;
-        matchDesktop.dataset.matchid = data.MatchID;
-        matchDesktop.innerHTML = `
-          <h3>Match ${data.MatchID}</h3>
-          <img src="${safeImage(data.EntryA_ImageURL)}" alt="${data.EntryA_Name}">
-          <div>${data.EntryA_Name}</div>
-          <span class="nominee">Nominated by ${data.EntryA_Nominee}</span>
-          <img src="${safeImage(data.EntryB_ImageURL)}" alt="${data.EntryB_Name}">
-          <div>${data.EntryB_Name}</div>
-          <span class="nominee">Nominated by ${data.EntryB_Nominee}</span>
-          <button disabled>Vote</button>
-        `;
+    // Sanitize only where appropriate
+    const data = {
+      MatchID: String(raw.MatchID ?? "").trim(),
+      Date: String(raw.Date ?? "").trim(),
+      EntryA_Name: cleanText(raw.EntryA_Name),
+      EntryA_ImageURL: safeImage(raw.EntryA_ImageURL),
+      EntryA_Nominee: cleanText(raw.EntryA_Nominee),
+      EntryB_Name: cleanText(raw.EntryB_Name),
+      EntryB_ImageURL: safeImage(raw.EntryB_ImageURL),
+      EntryB_Nominee: cleanText(raw.EntryB_Nominee),
+      // Winner: prefer empty string until officially set (prevents "TBD" banner)
+      Winner: cleanText(raw.Winner, "")
+    };
 
-        const matchMobile = document.createElement("div");
-        matchMobile.className = "match disabled";
-        matchMobile.dataset.date = data.Date;
-        matchMobile.dataset.matchid = data.MatchID;
-        matchMobile.innerHTML = `
-          <div class="entry">
-            <img src="${safeImage(data.EntryA_ImageURL)}" alt="${data.EntryA_Name}">
-            <div>${data.EntryA_Name}</div>
-            <span class="nominee">Nominated by ${data.EntryA_Nominee}</span>
-          </div>
-          <div class="vote"><button disabled>Vote</button></div>
-          <div class="entry">
-            <img src="${safeImage(data.EntryB_ImageURL)}" alt="${data.EntryB_Name}">
-            <div>${data.EntryB_Name}</div>
-            <span class="nominee">Nominated by ${data.EntryB_Nominee}</span>
-          </div>
-        `;
+    // Desktop card
+    const matchDesktop = document.createElement("div");
+    matchDesktop.className = "match disabled";
+    matchDesktop.dataset.date = data.Date;
+    matchDesktop.dataset.matchid = data.MatchID;
+    matchDesktop.innerHTML = `
+      <h3>Match ${data.MatchID}</h3>
+      <img src="${data.EntryA_ImageURL}" alt="${data.EntryA_Name}">
+      <div>${data.EntryA_Name}</div>
+      <span class="nominee">Nominated by ${data.EntryA_Nominee}</span>
+      <img src="${data.EntryB_ImageURL}" alt="${data.EntryB_Name}">
+      <div>${data.EntryB_Name}</div>
+      <span class="nominee">Nominated by ${data.EntryB_Nominee}</span>
+      <button disabled>Vote</button>
+    `;
 
-        let targetId, mobileTarget;
-        const mid = parseInt(data.MatchID);
-        if (mid >= 1 && mid <= 4) { targetId = "round1-left"; mobileTarget = "mobile-round1"; }
-        else if (mid >= 5 && mid <= 8) { targetId = "round1-right"; mobileTarget = "mobile-round1"; }
-        else if (mid === 9 || mid === 10) { targetId = "round2-left"; mobileTarget = "mobile-round2"; }
-        else if (mid === 11 || mid === 12) { targetId = "round2-right"; mobileTarget = "mobile-round2"; }
-        else if (mid === 13) { targetId = "round3-left"; mobileTarget = "mobile-round3"; }
-        else if (mid === 14) { targetId = "round3-right"; mobileTarget = "mobile-round3"; }
-        else if (mid === 15) { targetId = "round4"; mobileTarget = "mobile-round4"; }
+    // Mobile card
+    const matchMobile = document.createElement("div");
+    matchMobile.className = "match disabled";
+    matchMobile.dataset.date = data.Date;
+    matchMobile.dataset.matchid = data.MatchID;
+    matchMobile.innerHTML = `
+      <div class="entry">
+        <img src="${data.EntryA_ImageURL}" alt="${data.EntryA_Name}">
+        <div>${data.EntryA_Name}</div>
+        <span class="nominee">Nominated by ${data.EntryA_Nominee}</span>
+      </div>
+      <div class="vote"><button disabled>Vote</button></div>
+      <div class="entry">
+        <img src="${data.EntryB_ImageURL}" alt="${data.EntryB_Name}">
+        <div>${data.EntryB_Name}</div>
+        <span class="nominee">Nominated by ${data.EntryB_Nominee}</span>
+      </div>
+    `;
 
-        const roundContainer = document.querySelector(`#${targetId} .matches`);
-        if (roundContainer) {
-            let pair = roundContainer.lastElementChild && roundContainer.lastElementChild.classList.contains("pair") && roundContainer.lastElementChild.childElementCount < 2
-                ? roundContainer.lastElementChild
-                : Object.assign(document.createElement("div"), { className: "pair" });
-            if (!roundContainer.lastElementChild || roundContainer.lastElementChild.childElementCount >= 2) roundContainer.appendChild(pair);
-            pair.appendChild(matchDesktop);
-        }
-        document.querySelector(`#${mobileTarget} .matches`).appendChild(matchMobile);
+    // Place into correct columns
+    let targetId, mobileTarget;
+    const mid = parseInt(data.MatchID, 10);
+    if (mid >= 1 && mid <= 4) { targetId="round1-left";  mobileTarget="mobile-round1"; }
+    else if (mid >= 5 && mid <= 8) { targetId="round1-right"; mobileTarget="mobile-round1"; }
+    else if (mid === 9 || mid === 10) { targetId="round2-left"; mobileTarget="mobile-round2"; }
+    else if (mid === 11 || mid === 12) { targetId="round2-right"; mobileTarget="mobile-round2"; }
+    else if (mid === 13) { targetId="round3-left"; mobileTarget="mobile-round3"; }
+    else if (mid === 14) { targetId="round3-right"; mobileTarget="mobile-round3"; }
+    else if (mid === 15) { targetId="round4"; mobileTarget="mobile-round4"; }
 
-        // 🏆 Champion banner if Winner is filled
-        if (data.MatchID === "15" && data.Winner !== "TBD") {
-            showChampion(data.Winner);
-        }
-    });
+    const roundContainer = document.querySelector(`#${targetId} .matches`);
+    if (roundContainer) {
+      let pair = roundContainer.lastElementChild && roundContainer.lastElementChild.classList.contains("pair") && roundContainer.lastElementChild.childElementCount < 2
+        ? roundContainer.lastElementChild
+        : Object.assign(document.createElement("div"), { className: "pair" });
+      if (!roundContainer.lastElementChild || roundContainer.lastElementChild.childElementCount >= 2) roundContainer.appendChild(pair);
+      pair.appendChild(matchDesktop);
+    }
+    const mobileContainer = document.querySelector(`#${mobileTarget} .matches`);
+    if (mobileContainer) mobileContainer.appendChild(matchMobile);
 
-    enableMatches();
+    // Champion (Final) — only when Winner is truly set
+    if (data.MatchID === "15" && data.Winner) {
+      showChampion(data.Winner);
+    }
+  });
+
+  enableMatches();
 }
 
 function enableMatches() {
-    const today = new Date().toISOString().split('T')[0];
-    document.querySelectorAll('.match').forEach(match => {
-        const matchDate = match.dataset.date;
-        const button = match.querySelector('button');
-        if (today === matchDate) {
-            match.classList.remove('disabled'); button.disabled = false; button.textContent = "Vote";
-            button.onclick = () => openModal(match);
-        } else if (today < matchDate) {
-            button.disabled = true; button.textContent = "Opens " + matchDate;
-        } else {
-            button.disabled = true; button.textContent = "Voting Closed";
-        }
-    });
-}
-
-function openModal(match) {
-    currentMatchId = match.dataset.matchid;
-    const imgs = match.querySelectorAll('img');
-    const names = match.querySelectorAll('div');
-    const choicesDiv = document.getElementById('choices');
-    const modalTitle = document.getElementById('modalTitle');
-    choicesDiv.innerHTML = "";
-
-    const previousVote = localStorage.getItem("voted_match_" + currentMatchId);
-    if (previousVote) {
-        modalTitle.innerText = "You already voted";
-        choicesDiv.innerHTML = `<p>✅ You voted for <b>${previousVote}</b></p>`;
-        document.getElementById('voteModal').style.display = 'flex'; return;
+  const today = new Date().toISOString().split('T')[0];
+  document.querySelectorAll('.match').forEach(match => {
+    const matchDate = match.dataset.date;
+    const button = match.querySelector('button');
+    if (today === matchDate) {
+      match.classList.remove('disabled');
+      button.disabled = false;
+      button.textContent = "Vote";
+      button.onclick = () => openModal(match);
+    } else if (today < matchDate) {
+      button.disabled = true;
+      button.textContent = "Opens " + matchDate;
+    } else {
+      button.disabled = true;
+      button.textContent = "Voting Closed";
     }
+  });
+}
 
-    modalTitle.innerText = "Choose your bird";
-    [0, 1].forEach(i => {
-        const choiceImg = document.createElement('img');
-        choiceImg.src = imgs[i].src; choiceImg.alt = names[i].innerText;
-        choiceImg.dataset.choice = names[i].innerText;
-        choiceImg.onclick = () => sendVote(choiceImg);
-        choicesDiv.appendChild(choiceImg);
-    });
+/* ---------- Modal + Voting ---------- */
+function openModal(match) {
+  currentMatchId = match.dataset.matchid;
+  const imgs = match.querySelectorAll('img');
+  const names = match.querySelectorAll('div');
+  const choicesDiv = document.getElementById('choices');
+  const modalTitle = document.getElementById('modalTitle');
+  choicesDiv.innerHTML = "";
+
+  const previousVote = localStorage.getItem("voted_match_" + currentMatchId);
+  if (previousVote) {
+    modalTitle.innerText = "You already voted";
+    choicesDiv.innerHTML = `<p>✅ You voted for <b>${previousVote}</b></p>`;
     document.getElementById('voteModal').style.display = 'flex';
-}
+    return;
+  }
 
-function closeModal() { 
-    document.getElementById('voteModal').style.display = 'none'; 
+  modalTitle.innerText = "Choose your bird";
+  [0, 1].forEach(i => {
+    const choiceImg = document.createElement('img');
+    choiceImg.src = imgs[i].src;
+    choiceImg.alt = names[i].innerText;
+    choiceImg.dataset.choice = names[i].innerText;
+    choiceImg.onclick = () => sendVote(choiceImg);
+    choicesDiv.appendChild(choiceImg);
+  });
+  document.getElementById('voteModal').style.display = 'flex';
 }
+function closeModal() { document.getElementById('voteModal').style.display = 'none'; }
 
 function sendVote(choiceImg) {
-    const choice = choiceImg.dataset.choice;
-    localStorage.setItem("voted_match_" + currentMatchId, choice);
+  const choice = choiceImg.dataset.choice;
+  localStorage.setItem("voted_match_" + currentMatchId, choice);
 
-    fetch(WEBAPP_URL, {
-        method: "POST",
-        body: JSON.stringify({ matchId: currentMatchId, choice: choice, voter: localStorage.getItem("voterId") || "" }),
-        headers: { "Content-Type": "application/json" }
-    })
-        .then(res => res.json())
-        .then(data => {
-            const choices = document.getElementById('choices');
-            if (data.status === "duplicate") { 
-                choices.innerHTML = `<p>⚠️ You already voted in this match.</p>`; 
-            }
-            else if (data.status === "success") { 
-                choices.innerHTML = `<p>✅ You voted for <b>${choice}</b></p>`; 
-
-                // 🎊 Confetti if it's the Final
-                if (currentMatchId === "15") {
-                    launchConfetti();
-                }
-            }
-            else { 
-                choices.innerHTML = `<p style="color:red">❌ Error: ${data.message}</p>`; 
-            }
-        })
-        .catch(err => {
-            console.error("Vote failed:", err);
-            document.getElementById('choices').innerHTML = `<p style="color:red">❌ Vote failed. Please try again.</p>`;
-        });
+  fetch(WEBAPP_URL, {
+    method: "POST",
+    body: JSON.stringify({ matchId: currentMatchId, choice: choice, voter: localStorage.getItem("voterId") || "" }),
+    headers: { "Content-Type": "application/json" }
+  })
+  .then(res => res.json())
+  .then(data => {
+    const choices = document.getElementById('choices');
+    if (data.status === "duplicate") {
+      choices.innerHTML = `<p>⚠️ You already voted in this match.</p>`;
+    } else if (data.status === "success") {
+      choices.innerHTML = `<p>✅ You voted for <b>${choice}</b></p>`;
+      if (currentMatchId === "15") {
+        launchConfetti(); // fun, but not the official winner banner
+      }
+    } else {
+      choices.innerHTML = `<p style="color:red">❌ Error: ${data.message}</p>`;
+    }
+  })
+  .catch(err => {
+    console.error("Vote failed:", err);
+    document.getElementById('choices').innerHTML = `<p style="color:red">❌ Vote failed. Please try again.</p>`;
+  });
 }
 
+/* ---------- Confetti ---------- */
 function launchConfetti() {
-    const colors = ["#ff7c43", "#ffd23f", "#5bc0be", "#28a745", "#ffffff"];
-    const numConfetti = 60;
-
-    for (let i = 0; i < numConfetti; i++) {
-        const confetti = document.createElement("div");
-        confetti.className = "confetti";
-        confetti.style.left = Math.random() * 100 + "vw";
-        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        confetti.style.animationDuration = 2 + Math.random() * 3 + "s";
-        confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
-        document.body.appendChild(confetti);
-
-        setTimeout(() => confetti.remove(), 5000);
-    }
+  const colors = ["#ff7c43", "#ffd23f", "#5bc0be", "#28a745", "#ffffff"];
+  const numConfetti = 60;
+  for (let i = 0; i < numConfetti; i++) {
+    const confetti = document.createElement("div");
+    confetti.className = "confetti";
+    confetti.style.left = Math.random() * 100 + "vw";
+    confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.animationDuration = 2 + Math.random() * 3 + "s";
+    confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+    document.body.appendChild(confetti);
+    setTimeout(() => confetti.remove(), 5000);
+  }
 }
 
+/* ---------- Champion Banner (desktop + mobile) ---------- */
 function showChampion(name) {
-    // Desktop Final
-    const finalRound = document.querySelector("#round4 .matches");
-    if (finalRound) {
-        const existing = document.querySelector("#champion-banner");
-        if (existing) existing.remove();
+  // Desktop
+  const finalRound = document.querySelector("#round4 .matches");
+  if (finalRound) {
+    const existing = document.querySelector("#champion-banner");
+    if (existing) existing.remove();
+    const banner = document.createElement("div");
+    banner.id = "champion-banner";
+    banner.innerHTML = `🏆 Champion: <b>${name}</b>`;
+    banner.style.marginTop = "20px";
+    banner.style.fontSize = "1.3em";
+    banner.style.fontWeight = "bold";
+    banner.style.color = "#ffd23f";
+    banner.style.textShadow = "0 0 10px #ff7c43, 0 0 20px #ffd23f";
+    finalRound.appendChild(banner);
+  }
 
-        const banner = document.createElement("div");
-        banner.id = "champion-banner";
-        banner.innerHTML = `🏆 Champion: <b>${name}</b>`;
-        banner.style.marginTop = "20px";
-        banner.style.fontSize = "1.3em";
-        banner.style.fontWeight = "bold";
-        banner.style.color = "#ffd23f";
-        banner.style.textShadow = "0 0 10px #ff7c43, 0 0 20px #ffd23f";
-
-        finalRound.appendChild(banner);
-    }
-
-    // Mobile Final
-    const finalRoundMobile = document.querySelector("#mobile-round4 .matches");
-    if (finalRoundMobile) {
-        const existingMobile = document.querySelector("#champion-banner-mobile");
-        if (existingMobile) existingMobile.remove();
-
-        const bannerMobile = document.createElement("div");
-        bannerMobile.id = "champion-banner-mobile";
-        bannerMobile.innerHTML = `🏆 Champion: <b>${name}</b>`;
-        bannerMobile.style.marginTop = "15px";
-        bannerMobile.style.fontSize = "1.2em";
-        bannerMobile.style.fontWeight = "bold";
-        bannerMobile.style.color = "#ffd23f";
-        bannerMobile.style.textShadow = "0 0 8px #ff7c43, 0 0 16px #ffd23f";
-        bannerMobile.style.textAlign = "center";
-
-        finalRoundMobile.appendChild(bannerMobile);
-    }
+  // Mobile
+  const finalRoundMobile = document.querySelector("#mobile-round4 .matches");
+  if (finalRoundMobile) {
+    const existingMobile = document.querySelector("#champion-banner-mobile");
+    if (existingMobile) existingMobile.remove();
+    const bannerMobile = document.createElement("div");
+    bannerMobile.id = "champion-banner-mobile";
+    bannerMobile.innerHTML = `🏆 Champion: <b>${name}</b>`;
+    bannerMobile.style.marginTop = "15px";
+    bannerMobile.style.fontSize = "1.2em";
+    bannerMobile.style.fontWeight = "bold";
+    bannerMobile.style.color = "#ffd23f";
+    bannerMobile.style.textShadow = "0 0 8px #ff7c43, 0 0 16px #ffd23f";
+    bannerMobile.style.textAlign = "center";
+    finalRoundMobile.appendChild(bannerMobile);
+  }
 }
 
 loadMatches();
-
 
   </script>
 </body>
