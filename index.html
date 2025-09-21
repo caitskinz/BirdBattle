@@ -426,11 +426,11 @@ button:disabled {
     </div>
   </div>
   <script>
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?output=csv";
+    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?output=csv";
 const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzGewVgcdwcF82TGM4aVtcR0c3nLHxcZkDOrp79WxQXOtN1AzAcimyDDNezFxnrIPYYgA/exec";
 let currentMatchId = null;
 
-const PLACEHOLDER_IMG = "https://raw.githubusercontent.com/caitskinz/BirdBattle/refs/heads/main/placeholder.jpeg";
+const PLACEHOLDER_IMG = "https://upload.wikimedia.org/wikipedia/commons/2/21/Silhouette_question_mark.png";
 
 /* ---------- Helpers ---------- */
 function isNA(value) {
@@ -589,12 +589,15 @@ async function loadMatches() {
 /* ---------- Date-aware enableMatches ---------- */
 function enableMatches() {
   const todayStr = getTodayStr(); // ✅ local timezone
+  console.log("📅 Today (local):", todayStr);
 
   document.querySelectorAll('.match').forEach(match => {
     const rawDate = (match.dataset.date || "").trim();
     const matchStr = rawDate.split(" ")[0].trim(); // strip time if present
     const button = match.querySelector('button');
     match.classList.remove("live");
+
+    console.log(`→ Match ${match.dataset.matchid}: sheet=${matchStr}, today=${todayStr}`);
 
     if (!matchStr) {
       button.disabled = true;
