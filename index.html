@@ -427,7 +427,7 @@ button:disabled {
   </div>
   <script>
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?output=csv";
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycby-xPILLxIQDAvGdR2TGo3aEpXsEEFLyYJkqkMaC_p2U4Mb1PNWxByOICaZZA804tKF_A/exec";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzuHWQAaCbgVHmFOX9345IL03rNUMZGo9luCzwieBIbP2G71x0ariRlL6bWWCSGOYK5hw/exec";
 let currentMatchId = null;
 
 const PLACEHOLDER_IMG = "https://raw.githubusercontent.com/caitskinz/BirdBattle/refs/heads/main/placeholder.jpeg";
@@ -669,31 +669,54 @@ function closeModal() { document.getElementById('voteModal').style.display = 'no
 
 function sendVote(choiceImg) {
   const choice = choiceImg.dataset.choice;
-  localStorage.setItem("voted_match_" + currentMatchId, choice);
+
+  console.log("🕊️ Attempting vote:", {
+    matchId: currentMatchId,
+    choice: choice,
+    voter: localStorage.getItem("voterId") || ""
+  });
+  console.log("📡 Sending to:", WEBAPP_URL);
 
   fetch(WEBAPP_URL, {
     method: "POST",
-    body: JSON.stringify({ matchId: currentMatchId, choice: choice, voter: localStorage.getItem("voterId") || "" }),
-    headers: { "Content-Type": "application/json" }
+    body: JSON.stringify({
+      matchId: currentMatchId,
+      choice: choice,
+      voter: localStorage.getItem("voterId") || ""
+    }),
+    headers: { "Content-Type": "application/json" },
+    mode: "cors" // ensure CORS preflight
   })
-  .then(res => res.json())
-  .then(data => {
-    const choices = document.getElementById('choices');
-    if (data.status === "duplicate") {
-      choices.innerHTML = `<p>⚠️ You already voted in this match.</p>`;
-    } else if (data.status === "success") {
-      choices.innerHTML = `<p>✅ You voted for <b>${choice}</b></p>`;
-      if (currentMatchId === "15") {
-        launchConfetti();
+    .then(async (res) => {
+      console.log("🌐 Raw response:", res);
+
+      let data;
+      try {
+        data = await res.json();
+        console.log("✅ Parsed response:", data);
+      } catch (err) {
+        console.error("❌ Failed to parse JSON:", err);
+        throw err;
       }
-    } else {
-      choices.innerHTML = `<p style="color:red">❌ Error: ${data.message}</p>`;
-    }
-  })
-  .catch(err => {
-    console.error("Vote failed:", err);
-    document.getElementById('choices').innerHTML = `<p style="color:red">❌ Vote failed. Please try again.</p>`;
-  });
+
+      const choices = document.getElementById("choices");
+      if (data.status === "success") {
+        localStorage.setItem("voted_match_" + currentMatchId, choice);
+        choices.innerHTML = `<p>✅ You voted for <b>${choice}</b></p>`;
+        if (currentMatchId === "15") {
+          launchConfetti();
+        }
+      } else if (data.status === "duplicate") {
+        choices.innerHTML = `<p>⚠️ You already voted in this match.</p>`;
+      } else {
+        choices.innerHTML = `<p style="color:red">❌ Error: ${data.message}</p>`;
+      }
+    })
+    .catch((err) => {
+      console.error("🚨 Vote failed:", err);
+      document.getElementById("choices").innerHTML =
+        `<p style="color:red">❌ Vote failed. Please try again.</p>`;
+    });
 }
 
 /* ---------- Confetti ---------- */
