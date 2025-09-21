@@ -6,271 +6,339 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bird Bracket Voting</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #5ac5cc;
-      margin: 0;
-      padding: 0;
-    }
+    /* ===== Base Layout ===== */
+body {
+  font-family: "Segoe UI", Roboto, sans-serif;
+  background: linear-gradient(135deg, #1c2541, #3a506b);
+  margin: 0;
+  padding: 0;
+  color: #fff;
+}
 
-    h1 {
-      text-align: center;
-      margin: 20px;
-      font-size: 2em;
-      background: #fff;
-      border-radius: 20px;
-      padding: 10px;
-    }
+h1 {
+  text-align: center;
+  margin: 20px;
+  font-size: 2.5em;
+  font-weight: bold;
+  background: linear-gradient(90deg, #ffd23f, #ff7c43);
+  color: #1c2541;
+  border-radius: 16px;
+  padding: 15px 25px;
+  display: inline-block;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+}
 
-    /* ✅ Default: desktop visible, mobile hidden */
-    .mobile-rounds {
-      display: none !important;
-    }
-    .bracket {
-      display: flex !important;
-      justify-content: center;
-      align-items: stretch;
-      gap: 30px;
-      margin: 30px auto;
-      max-width: 1600px;
-    }
+/* ===== Bracket Layout ===== */
+.bracket {
+  display: flex !important;
+  justify-content: center;
+  align-items: stretch;
+  gap: 40px;
+  margin: 30px auto;
+  max-width: 1600px;
+}
 
-    .side {
-      display: flex;
-      flex-direction: row;
-      gap: 20px;
-      flex: 1;
-    }
+.side {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  flex: 1;
+}
 
-    .side.left {
-      flex-direction: row-reverse;
-    }
+.side.left {
+  flex-direction: row-reverse;
+}
 
-    .center {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      flex: 0 0 auto;
-    }
+.center {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 0 0 auto;
+}
 
-    .round {
-      display: flex;
-      flex-direction: column;
-      justify-content: space-around;
-      flex: 1;
-      position: relative;
-    }
+/* ===== Round Labels ===== */
+.round {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly; /* evenly spread matches */
+  flex: 1;
+  position: relative;
+  min-height: 600px; /* adjust based on how tall you want the bracket */
+}
 
-    .round h2 {
-      margin-bottom: 10px;
-      font-size: 1.1em;
-      text-align: center;
-    }
+.round h2 {
+  margin-bottom: 15px;
+  font-size: 1.2em;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #ffd23f;
+  text-shadow: 0 2px 5px rgba(0,0,0,0.7);
+}
 
-    .pair {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      gap: 25px;
-    }
+/* ===== Matches ===== */
+.match {
+  width: 240px;
+  padding: 15px;
+  border: 3px solid #5bc0be;
+  border-radius: 14px;
+  background: #0b132b;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
 
-    .side.left .pair::after,
-    .side.right .pair::after {
-      content: "";
-      position: absolute;
-      top: 25%;
-      height: 50%;
-      width: 25px;
-      border-top: 2px solid #999;
-      border-bottom: 2px solid #999;
-    }
+.match:hover {
+  transform: translateY(-6px) scale(1.02);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.7);
+}
 
-    .side.left .pair::after {
-      right: -25px;
-      border-right: 2px solid #999;
-    }
+.match h3 {
+  margin: 8px 0 12px;
+  font-size: 1em;
+  color: #ffd23f;
+}
 
-    .side.right .pair::after {
-      left: -25px;
-      border-left: 2px solid #999;
-    }
+/* ===== Images ===== */
+.match img {
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  margin: 6px 0;
+  object-fit: cover;
+  border: solid 3px #5bc0be;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
 
-    .match {
-      width: 220px;
-      padding: 15px;
-      border: 3px solid #00395d;
-      border-radius: 12px;
-      background: #fff;
-      text-align: center;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    }
+.match img:hover {
+  transform: scale(1.1);
+  border-color: #ffd23f;
+}
 
-    .match.disabled {
-      opacity: 0.6;
-      pointer-events: none;
-    }
+.nominee {
+  font-size: 0.75em;
+  color: #ccc;
+  display: block;
+  margin-bottom: 10px;
+}
 
-    .match h3 {
-      margin: 5px 0 10px;
-      font-size: 1em;
-    }
+/* ===== Buttons ===== */
+button {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  background: #ff7c43;
+  font-weight: bold;
+  color: #fff;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background 0.25s ease, transform 0.2s ease;
+}
 
-    .match img {
-      width: 80px;
-      height: 80px;
-      border-radius: 20px;
-      margin: 5px 0;
-      object-fit: cover;
-      border: solid 3px #00395d;
-    }
+button:hover:not(:disabled) {
+  background: #d94f20;
+  transform: scale(1.05);
+}
 
-    .nominee {
-      font-size: 0.8em;
-      color: #666;
-      display: block;
-      margin-bottom: 8px;
-    }
+button:disabled {
+  background: #555;
+  color: #bbb;
+  cursor: not-allowed;
+}
 
-    button {
-      padding: 8px 15px;
-      border: none;
-      border-radius: 6px;
-      background: #007BFF;
-      color: white;
-      cursor: pointer;
-      margin-top: 8px;
-    }
+/* ===== Winner Highlight ===== */
+.winner {
+  border-color: #28a745 !important;
+  background: linear-gradient(135deg, #0b6623, #14532d) !important;
+  box-shadow: 0 0 20px rgba(40,167,69,0.7);
+}
 
-    button:hover:not(:disabled) {
-      background: #0056b3;
-    }
+/* ===== Bracket Connector Lines ===== */
 
-    button:disabled {
-      background: #ccc;
-      cursor: not-allowed;
-    }
 
-    .winner {
-      border-color: #28a745 !important;
-      background: #e9f9ef !important;
-    }
+.side.left .pair::after {
+  right: -30px;
+  border-right: 3px solid transparent;
+}
 
-    /* Modal */
-    .modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.6);
-      justify-content: center;
-      align-items: center;
-    }
+.side.right .pair::after {
+  left: -30px;
+  border-left: 3px solid transparent;
+}
 
-    .modal-content {
-      background: white;
-      padding: 25px;
-      border-radius: 12px;
-      text-align: center;
-      max-width: 420px;
-    }
+/* ===== Final Crown Connector ===== */
+#round4 .matches::before {
+  content: "👑";
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.5em;
+  text-shadow: 0 0 15px gold, 0 0 30px orange;
+  animation: crownGlow 2s ease-in-out infinite alternate;
+}
 
-    .modal-content img {
-      width: 120px;
-      height: 120px;
-      margin: 15px;
-      cursor: pointer;
-      border: 3px solid transparent;
-      border-radius: 12px;
-      object-fit: cover;
-    }
+#round4 .matches {
+  position: relative;
+}
 
-    .modal-content img:hover {
-      border: 3px solid #007BFF;
-    }
+@keyframes crownGlow {
+  0%   { text-shadow: 0 0 10px gold, 0 0 20px orange; }
+  100% { text-shadow: 0 0 25px #ffd23f, 0 0 40px #ff7c43; }
+}
 
-    /* 📱 Mobile (≤768px): desktop hidden, mobile visible */
-    @media (max-width: 768px) {
-      .bracket {
-        display: none !important;
-      }
-      .mobile-rounds {
-        display: block !important;
-        padding: 10px;
-      }
+/* ===== Animated Glow Effect ===== */
+@keyframes flow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
 
-      .round-selector {
-        display: flex;
-        justify-content: center;
-        gap: 10px;
-        margin-bottom: 20px;
-        flex-wrap: wrap;
-      }
+/* ===== Modal ===== */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.7);
+  justify-content: center;
+  align-items: center;
+}
 
-      .round-selector button {
-        padding: 6px 12px;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        background: #00395d;
-        color: white;
-      }
+.modal-content {
+  background: #1c2541;
+  color: #fff;
+  padding: 30px;
+  border-radius: 14px;
+  text-align: center;
+  max-width: 450px;
+  border: 3px solid #5bc0be;
+}
 
-      .round-selector button.active {
-        background: #007BFF;
-        border: solid 2px #f6e909;
-      }
+.modal-content img {
+  width: 120px;
+  height: 120px;
+  margin: 15px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid transparent;
+  transition: transform 0.2s ease, border 0.2s ease;
+}
 
-      .mobile-round {
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        gap: 20px;
-      }
+.modal-content img:hover {
+  border: 3px solid #ffd23f;
+  transform: scale(1.1);
+}
 
-      .mobile-round.active {
-        display: flex;
-      }
+/* ===== Confetti ===== */
+.confetti {
+  position: fixed;
+  top: -10px;
+  width: 10px;
+  height: 14px;
+  background-color: red;
+  opacity: 0.9;
+  z-index: 9999;
+  animation: fall linear forwards;
+  pointer-events: none;
+}
 
-      .match {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 95%;
-        max-width: 450px;
-        padding: 10px;
-      }
+@keyframes fall {
+  to {
+    transform: translateY(110vh) rotate(360deg);
+    opacity: 0.8;
+  }
+}
 
-      .entry {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        flex: 1;
-        text-align: center;
-      }
+/* ===== Mobile ===== */
+@media (max-width: 768px) {
+  body {
+    background: #0b132b;
+  }
 
-      .entry img {
-        width: 60px;
-        height: 60px;
-        border-radius: 12px;
-        object-fit: cover;
-        border: 2px solid #00395d;
-        margin-bottom: 5px;
-      }
+  .bracket {
+    display: none !important;
+  }
 
-      .entry div {
-        font-size: 0.9em;
-        font-weight: bold;
-      }
+  .mobile-rounds {
+    display: block !important;
+    padding: 10px;
+  }
 
-      .nominee {
-        font-size: 0.7em;
-        color: #666;
-      }
-    }
+  .round-selector {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .round-selector button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    background: #3a506b;
+    color: white;
+    border: 2px solid transparent;
+  }
+
+  .round-selector button.active {
+    background: #ffd23f;
+    color: #1c2541;
+    border: 2px solid #ff7c43;
+  }
+
+  .mobile-round {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .mobile-round.active {
+    display: flex;
+  }
+
+  .match {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 95%;
+    max-width: 450px;
+    padding: 12px;
+    margin-bottom: 12px;
+  }
+
+  .entry {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+    text-align: center;
+  }
+
+  .entry img {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #5bc0be;
+    margin-bottom: 5px;
+  }
+
+  .entry div {
+    font-size: 0.9em;
+    font-weight: bold;
+  }
+
+  .nominee {
+    font-size: 0.7em;
+    color: #bbb;
+  }
+}
+
   </style>
 </head>
 
@@ -281,35 +349,35 @@
   <div class="bracket">
     <div class="side left">
       <div class="round" id="round3-left">
-        <h2>Semifinal</h2>
+        
         <div class="matches"></div>
       </div>
       <div class="round" id="round2-left">
-        <h2>Quarterfinals</h2>
+        
         <div class="matches"></div>
       </div>
       <div class="round" id="round1-left">
-        <h2>Round 1</h2>
+        
         <div class="matches"></div>
       </div>
     </div>
     <div class="center">
       <div class="round" id="round4">
-        <h2>Final</h2>
+       
         <div class="matches"></div>
       </div>
     </div>
     <div class="side right">
       <div class="round" id="round3-right">
-        <h2>Semifinal</h2>
+       
         <div class="matches"></div>
       </div>
       <div class="round" id="round2-right">
-        <h2>Quarterfinals</h2>
+        
         <div class="matches"></div>
       </div>
       <div class="round" id="round1-right">
-        <h2>Round 1</h2>
+        
         <div class="matches"></div>
       </div>
     </div>
@@ -349,45 +417,45 @@
       <button onclick="closeModal()">Close</button>
     </div>
   </div>
-
   <script>
-    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?output=csv"; 
-    const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzGewVgcdwcF82TGM4aVtcR0c3nLHxcZkDOrp79WxQXOtN1AzAcimyDDNezFxnrIPYYgA/exec"; 
-    let currentMatchId = null;
 
-    function showMobileRound(round) {
-      document.querySelectorAll('.mobile-round').forEach(r => r.classList.remove('active'));
-      document.querySelectorAll('.round-selector button').forEach(b => b.classList.remove('active'));
-      document.getElementById('mobile-' + round).classList.add('active');
-      document.querySelector(`.round-selector button[onclick="showMobileRound('${round}')"]`).classList.add('active');
-    }
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?output=csv";
+const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzGewVgcdwcF82TGM4aVtcR0c3nLHxcZkDOrp79WxQXOtN1AzAcimyDDNezFxnrIPYYgA/exec";
+let currentMatchId = null;
 
-    function parseCSV(text) {
-      return text.trim().split("\n").map(line => {
+function showMobileRound(round) {
+    document.querySelectorAll('.mobile-round').forEach(r => r.classList.remove('active'));
+    document.querySelectorAll('.round-selector button').forEach(b => b.classList.remove('active'));
+    document.getElementById('mobile-' + round).classList.add('active');
+    document.querySelector(`.round-selector button[onclick="showMobileRound('${round}')"]`).classList.add('active');
+}
+
+function parseCSV(text) {
+    return text.trim().split("\n").map(line => {
         const regex = /("([^"]*)"|[^,]+)/g;
         const row = [];
         let match;
         while ((match = regex.exec(line))) {
-          row.push(match[2] !== undefined ? match[2] : match[0]);
+            row.push(match[2] !== undefined ? match[2] : match[0]);
         }
         return row;
-      });
-    }
+    });
+}
 
-    async function loadMatches() {
-      const response = await fetch(SHEET_URL);
-      const text = await response.text();
-      const rows = parseCSV(text);
-      const headers = rows.shift();
-      const headerMap = {};
-      headers.forEach((h, i) => headerMap[h.trim()] = i);
+async function loadMatches() {
+    const response = await fetch(SHEET_URL);
+    const text = await response.text();
+    const rows = parseCSV(text);
+    const headers = rows.shift();
+    const headerMap = {};
+    headers.forEach((h, i) => headerMap[h.trim()] = i);
 
-      ["round1-left","round2-left","round3-left","round1-right","round2-right","round3-right","round4",
-      "mobile-round1","mobile-round2","mobile-round3","mobile-round4"].forEach(id => {
-        document.querySelector(`#${id} .matches`).innerHTML = "";
-      });
+    ["round1-left", "round2-left", "round3-left", "round1-right", "round2-right", "round3-right", "round4",
+        "mobile-round1", "mobile-round2", "mobile-round3", "mobile-round4"].forEach(id => {
+            document.querySelector(`#${id} .matches`).innerHTML = "";
+        });
 
-      rows.forEach(row => {
+    rows.forEach(row => {
         const data = {};
         Object.keys(headerMap).forEach(h => data[h] = row[headerMap[h]] || "");
 
@@ -426,94 +494,113 @@
 
         let targetId, mobileTarget;
         const mid = parseInt(data.MatchID);
-        if (mid >= 1 && mid <= 4) { targetId="round1-left"; mobileTarget="mobile-round1"; }
-        else if (mid >= 5 && mid <= 8) { targetId="round1-right"; mobileTarget="mobile-round1"; }
-        else if (mid === 9 || mid === 10) { targetId="round2-left"; mobileTarget="mobile-round2"; }
-        else if (mid === 11 || mid === 12) { targetId="round2-right"; mobileTarget="mobile-round2"; }
-        else if (mid === 13) { targetId="round3-left"; mobileTarget="mobile-round3"; }
-        else if (mid === 14) { targetId="round3-right"; mobileTarget="mobile-round3"; }
-        else if (mid === 15) { targetId="round4"; mobileTarget="mobile-round4"; }
+        if (mid >= 1 && mid <= 4) { targetId = "round1-left"; mobileTarget = "mobile-round1"; }
+        else if (mid >= 5 && mid <= 8) { targetId = "round1-right"; mobileTarget = "mobile-round1"; }
+        else if (mid === 9 || mid === 10) { targetId = "round2-left"; mobileTarget = "mobile-round2"; }
+        else if (mid === 11 || mid === 12) { targetId = "round2-right"; mobileTarget = "mobile-round2"; }
+        else if (mid === 13) { targetId = "round3-left"; mobileTarget = "mobile-round3"; }
+        else if (mid === 14) { targetId = "round3-right"; mobileTarget = "mobile-round3"; }
+        else if (mid === 15) { targetId = "round4"; mobileTarget = "mobile-round4"; }
 
         const roundContainer = document.querySelector(`#${targetId} .matches`);
         if (roundContainer) {
-          let pair = roundContainer.lastElementChild && roundContainer.lastElementChild.classList.contains("pair") && roundContainer.lastElementChild.childElementCount < 2
-            ? roundContainer.lastElementChild
-            : Object.assign(document.createElement("div"), {className: "pair"});
-          if (!roundContainer.lastElementChild || roundContainer.lastElementChild.childElementCount >= 2) roundContainer.appendChild(pair);
-          pair.appendChild(matchDesktop);
+            let pair = roundContainer.lastElementChild && roundContainer.lastElementChild.classList.contains("pair") && roundContainer.lastElementChild.childElementCount < 2
+                ? roundContainer.lastElementChild
+                : Object.assign(document.createElement("div"), { className: "pair" });
+            if (!roundContainer.lastElementChild || roundContainer.lastElementChild.childElementCount >= 2) roundContainer.appendChild(pair);
+            pair.appendChild(matchDesktop);
         }
         document.querySelector(`#${mobileTarget} .matches`).appendChild(matchMobile);
-      });
+    });
 
-      enableMatches();
-    }
+    enableMatches();
+}
 
-    function enableMatches() {
-      const today = new Date().toISOString().split('T')[0];
-      document.querySelectorAll('.match').forEach(match => {
+function enableMatches() {
+    const today = new Date().toISOString().split('T')[0];
+    document.querySelectorAll('.match').forEach(match => {
         const matchDate = match.dataset.date;
         const button = match.querySelector('button');
         if (today === matchDate) {
-          match.classList.remove('disabled'); button.disabled=false; button.textContent="Vote";
-          button.onclick = () => openModal(match);
+            match.classList.remove('disabled'); button.disabled = false; button.textContent = "Vote";
+            button.onclick = () => openModal(match);
         } else if (today < matchDate) {
-          button.disabled=true; button.textContent="Opens "+matchDate;
+            button.disabled = true; button.textContent = "Opens " + matchDate;
         } else {
-          button.disabled=true; button.textContent="Voting Closed";
+            button.disabled = true; button.textContent = "Voting Closed";
         }
-      });
-    }
+    });
+}
 
-    function openModal(match) {
-      currentMatchId = match.dataset.matchid;
-      const imgs = match.querySelectorAll('img');
-      const names = match.querySelectorAll('div');
-      const choicesDiv = document.getElementById('choices');
-      const modalTitle = document.getElementById('modalTitle');
-      choicesDiv.innerHTML = "";
+function openModal(match) {
+    currentMatchId = match.dataset.matchid;
+    const imgs = match.querySelectorAll('img');
+    const names = match.querySelectorAll('div');
+    const choicesDiv = document.getElementById('choices');
+    const modalTitle = document.getElementById('modalTitle');
+    choicesDiv.innerHTML = "";
 
-      const previousVote = localStorage.getItem("voted_match_" + currentMatchId);
-      if (previousVote) {
+    const previousVote = localStorage.getItem("voted_match_" + currentMatchId);
+    if (previousVote) {
         modalTitle.innerText = "You already voted";
         choicesDiv.innerHTML = `<p>✅ You voted for <b>${previousVote}</b></p>`;
         document.getElementById('voteModal').style.display = 'flex'; return;
-      }
+    }
 
-      modalTitle.innerText = "Choose your bird";
-      [0,1].forEach(i => {
+    modalTitle.innerText = "Choose your bird";
+    [0, 1].forEach(i => {
         const choiceImg = document.createElement('img');
         choiceImg.src = imgs[i].src; choiceImg.alt = names[i].innerText;
         choiceImg.dataset.choice = names[i].innerText;
         choiceImg.onclick = () => sendVote(choiceImg);
         choicesDiv.appendChild(choiceImg);
-      });
-      document.getElementById('voteModal').style.display = 'flex';
+    });
+    document.getElementById('voteModal').style.display = 'flex';
+}
+function closeModal() { document.getElementById('voteModal').style.display = 'none'; }
+
+function sendVote(choiceImg) {
+    const choice = choiceImg.dataset.choice;
+    localStorage.setItem("voted_match_" + currentMatchId, choice);
+
+    fetch(WEBAPP_URL, {
+        method: "POST",
+        body: JSON.stringify({ matchId: currentMatchId, choice: choice, voter: localStorage.getItem("voterId") || "" }),
+        headers: { "Content-Type": "application/json" }
+    })
+        .then(res => res.json())
+        .then(data => {
+            const choices = document.getElementById('choices');
+            if (data.status === "duplicate") { choices.innerHTML = `<p>⚠️ You already voted in this match.</p>`; }
+            else if (data.status === "success") { choices.innerHTML = `<p>✅ You voted for <b>${choice}</b></p>`; }
+            else { choices.innerHTML = `<p style="color:red">❌ Error: ${data.message}</p>`; }
+        })
+        .catch(err => {
+            console.error("Vote failed:", err);
+            document.getElementById('choices').innerHTML = `<p style="color:red">❌ Vote failed. Please try again.</p>`;
+        });
+}
+
+loadMatches();
+
+function launchConfetti() {
+    const colors = ["#ff7c43", "#ffd23f", "#5bc0be", "#28a745", "#ffffff"];
+    const numConfetti = 60; // adjust density
+
+    for (let i = 0; i < numConfetti; i++) {
+        const confetti = document.createElement("div");
+        confetti.className = "confetti";
+        confetti.style.left = Math.random() * 100 + "vw";
+        confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        confetti.style.animationDuration = 2 + Math.random() * 3 + "s"; // random speed
+        confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
+        document.body.appendChild(confetti);
+
+        // remove after falling
+        setTimeout(() => confetti.remove(), 5000);
     }
-    function closeModal() { document.getElementById('voteModal').style.display='none'; }
+}
 
-    function sendVote(choiceImg) {
-      const choice = choiceImg.dataset.choice;
-      localStorage.setItem("voted_match_" + currentMatchId, choice);
-
-      fetch(WEBAPP_URL, {
-        method:"POST",
-        body:JSON.stringify({matchId:currentMatchId, choice:choice, voter:localStorage.getItem("voterId")||""}),
-        headers:{"Content-Type":"application/json"}
-      })
-      .then(res=>res.json())
-      .then(data=>{
-        const choices = document.getElementById('choices');
-        if(data.status==="duplicate"){ choices.innerHTML=`<p>⚠️ You already voted in this match.</p>`; }
-        else if(data.status==="success"){ choices.innerHTML=`<p>✅ You voted for <b>${choice}</b></p>`; }
-        else { choices.innerHTML=`<p style="color:red">❌ Error: ${data.message}</p>`; }
-      })
-      .catch(err=>{
-        console.error("Vote failed:",err);
-        document.getElementById('choices').innerHTML=`<p style="color:red">❌ Vote failed. Please try again.</p>`;
-      });
-    }
-
-    loadMatches();
   </script>
 </body>
 </html>
