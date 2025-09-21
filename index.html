@@ -427,6 +427,7 @@ button:disabled {
   </div>
   <script>
     <script>
+<script>
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?output=csv";
 const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzGewVgcdwcF82TGM4aVtcR0c3nLHxcZkDOrp79WxQXOtN1AzAcimyDDNezFxnrIPYYgA/exec";
 let currentMatchId = null;
@@ -446,12 +447,18 @@ function safeImage(url) {
   const v = String(url ?? "").trim();
   return isNA(v) ? PLACEHOLDER_IMG : v;
 }
-
-// ✅ Compare two dates by Y/M/D only
 function sameDay(d1, d2) {
   return d1.getFullYear() === d2.getFullYear() &&
          d1.getMonth() === d2.getMonth() &&
          d1.getDate() === d2.getDate();
+}
+// ✅ safer date parsing
+function parseSheetDate(raw) {
+  if (!raw) return null;
+  const cleaned = raw.trim().split(" ")[0]; // drop time if present
+  const [y, m, d] = cleaned.split("-");
+  if (!y || !m || !d) return null;
+  return new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
 }
 
 function showMobileRound(round) {
@@ -583,16 +590,15 @@ function enableMatches() {
   console.log("📅 Today (local):", today.toDateString());
 
   document.querySelectorAll('.match').forEach(match => {
-    const rawDate = (match.dataset.date || "").trim();
-    if (!rawDate) {
-      match.querySelector('button').disabled = true;
-      match.querySelector('button').textContent = "No Date";
-      return;
-    }
-
-    const matchDate = new Date(rawDate);
+    const matchDate = parseSheetDate(match.dataset.date);
     const button = match.querySelector('button');
     match.classList.remove("live");
+
+    if (!matchDate) {
+      button.disabled = true;
+      button.textContent = "No Date";
+      return;
+    }
 
     console.log(`→ Match ${match.dataset.matchid}: sheet=${matchDate.toDateString()}, today=${today.toDateString()}`);
 
@@ -604,7 +610,7 @@ function enableMatches() {
       button.onclick = () => openModal(match);
     } else if (matchDate > today) {
       button.disabled = true;
-      button.textContent = "Opens " + rawDate;
+      button.textContent = "Opens " + match.dataset.date;
     } else {
       button.disabled = true;
       button.textContent = "Voting Closed";
@@ -618,10 +624,8 @@ function openTodayRound() {
   let todayMatch = null;
 
   document.querySelectorAll('.match').forEach(match => {
-    const rawDate = (match.dataset.date || "").trim();
-    if (!rawDate) return;
-    const matchDate = new Date(rawDate);
-    if (sameDay(matchDate, today)) {
+    const matchDate = parseSheetDate(match.dataset.date);
+    if (matchDate && sameDay(matchDate, today)) {
       todayMatch = match;
     }
   });
@@ -745,6 +749,8 @@ function showChampion(name) {
 }
 
 loadMatches();
+</script>
+
 </script>
   
   </script>
