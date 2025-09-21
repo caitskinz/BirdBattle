@@ -251,6 +251,13 @@ button:disabled {
   display: none !important;
 }
 
+    .match.live {
+  border-color: #ffd23f !important;
+  box-shadow: 0 0 10px #ffd23f, 0 0 20px #ff7c43;
+  transform: scale(1.02);
+  transition: all 0.3s ease-in-out;
+}
+
 
 /* ===== Mobile ===== */
 @media (max-width: 768px) {
@@ -448,7 +455,7 @@ function showMobileRound(round) {
   // 🔎 Scroll to today’s active match in this round
   const activeRound = document.getElementById('mobile-' + round);
   if (activeRound) {
-    const currentMatch = activeRound.querySelector('.match:not(.disabled)');
+    const currentMatch = activeRound.querySelector('.match.live');
     if (currentMatch) {
       setTimeout(() => {
         currentMatch.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -575,8 +582,13 @@ function enableMatches() {
   document.querySelectorAll('.match').forEach(match => {
     const matchDate = match.dataset.date;
     const button = match.querySelector('button');
+
+    // reset live class
+    match.classList.remove("live");
+
     if (today === matchDate) {
       match.classList.remove('disabled');
+      match.classList.add("live"); // ✨ highlight live match
       button.disabled = false;
       button.textContent = "Vote";
       button.onclick = () => openModal(match);
@@ -722,7 +734,6 @@ function showChampion(name) {
 }
 
 loadMatches();
-
 
   </script>
 </body>
