@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bird Bracket Voting</title>
   <style>
-    /* ===== Base Layout ===== */
+  /* ===== Base Layout ===== */
 body {
   font-family: "Segoe UI", Roboto, sans-serif;
   background: linear-gradient(135deg, #1c2541, #3a506b);
@@ -154,18 +154,7 @@ button:disabled {
   box-shadow: 0 0 20px rgba(40,167,69,0.7);
 }
 
-/* ===== Bracket Connector Lines ===== */
 
-
-.side.left .pair::after {
-  right: -30px;
-  border-right: 3px solid transparent;
-}
-
-.side.right .pair::after {
-  left: -30px;
-  border-left: 3px solid transparent;
-}
 
 /* ===== Final Crown Connector ===== */
 #round4 .matches::before {
@@ -250,6 +239,15 @@ button:disabled {
     opacity: 0.8;
   }
 }
+
+/* Default: show desktop, hide mobile */
+.bracket {
+  display: flex !important;
+}
+.mobile-rounds {
+  display: none !important;
+}
+
 
 /* ===== Mobile ===== */
 @media (max-width: 768px) {
