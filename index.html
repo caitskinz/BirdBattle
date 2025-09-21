@@ -426,11 +426,12 @@ button:disabled {
     </div>
   </div>
   <script>
-    const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?output=csv";
+    <script>
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?output=csv";
 const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzGewVgcdwcF82TGM4aVtcR0c3nLHxcZkDOrp79WxQXOtN1AzAcimyDDNezFxnrIPYYgA/exec";
 let currentMatchId = null;
 
-const PLACEHOLDER_IMG = "https://upload.wikimedia.org/wikipedia/commons/2/21/Silhouette_question_mark.png";
+const PLACEHOLDER_IMG = "https://raw.githubusercontent.com/caitskinz/BirdBattle/refs/heads/main/placeholder.jpeg";
 
 /* ---------- Helpers ---------- */
 function isNA(value) {
@@ -446,13 +447,11 @@ function safeImage(url) {
   return isNA(v) ? PLACEHOLDER_IMG : v;
 }
 
-// ✅ Local date in YYYY-MM-DD (not UTC)
-function getTodayStr() {
-  const d = new Date();
-  const year = d.getFullYear();
-  const month = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+// ✅ Compare two dates by Y/M/D only
+function sameDay(d1, d2) {
+  return d1.getFullYear() === d2.getFullYear() &&
+         d1.getMonth() === d2.getMonth() &&
+         d1.getDate() === d2.getDate();
 }
 
 function showMobileRound(round) {
@@ -461,7 +460,6 @@ function showMobileRound(round) {
   document.getElementById('mobile-' + round).classList.add('active');
   document.querySelector(`.round-selector button[onclick="showMobileRound('${round}')"]`).classList.add('active');
 
-  // 🔎 Scroll to today’s active match in this round
   const activeRound = document.getElementById('mobile-' + round);
   if (activeRound) {
     const currentMatch = activeRound.querySelector('.match.live');
@@ -494,7 +492,6 @@ async function loadMatches() {
   const headerMap = {};
   headers.forEach((h, i) => headerMap[h.trim()] = i);
 
-  // clear old matches
   ["round1-left","round2-left","round3-left","round1-right","round2-right","round3-right","round4",
    "mobile-round1","mobile-round2","mobile-round3","mobile-round4"].forEach(id => {
     const el = document.querySelector(`#${id} .matches`);
@@ -502,11 +499,9 @@ async function loadMatches() {
   });
 
   rows.forEach(row => {
-    // Raw values
     const raw = {};
     Object.keys(headerMap).forEach(h => raw[h] = row[headerMap[h]] ?? "");
 
-    // Sanitize only where appropriate
     const data = {
       MatchID: String(raw.MatchID ?? "").trim(),
       Date: String(raw.Date ?? "").trim(),
@@ -519,7 +514,6 @@ async function loadMatches() {
       Winner: isNA(raw.Winner) ? "" : String(raw.Winner).trim()
     };
 
-    // Desktop card
     const matchDesktop = document.createElement("div");
     matchDesktop.className = "match disabled";
     matchDesktop.dataset.date = data.Date;
@@ -535,7 +529,6 @@ async function loadMatches() {
       <button disabled>Vote</button>
     `;
 
-    // Mobile card
     const matchMobile = document.createElement("div");
     matchMobile.className = "match disabled";
     matchMobile.dataset.date = data.Date;
@@ -554,7 +547,6 @@ async function loadMatches() {
       </div>
     `;
 
-    // Place into correct columns
     let targetId, mobileTarget;
     const mid = parseInt(data.MatchID, 10);
     if (mid >= 1 && mid <= 4) { targetId="round1-left";  mobileTarget="mobile-round1"; }
@@ -576,44 +568,43 @@ async function loadMatches() {
     const mobileContainer = document.querySelector(`#${mobileTarget} .matches`);
     if (mobileContainer) mobileContainer.appendChild(matchMobile);
 
-    // Champion (Final) — only when Winner is truly set
     if (data.MatchID === "15" && data.Winner) {
       showChampion(data.Winner);
     }
   });
 
   enableMatches();
-  openTodayRound(); // 🔎 auto-open correct round on mobile
+  openTodayRound();
 }
 
 /* ---------- Date-aware enableMatches ---------- */
 function enableMatches() {
-  const todayStr = getTodayStr(); // ✅ local timezone
-  console.log("📅 Today (local):", todayStr);
+  const today = new Date(); // local
+  console.log("📅 Today (local):", today.toDateString());
 
   document.querySelectorAll('.match').forEach(match => {
     const rawDate = (match.dataset.date || "").trim();
-    const matchStr = rawDate.split(" ")[0].trim(); // strip time if present
-    const button = match.querySelector('button');
-    match.classList.remove("live");
-
-    console.log(`→ Match ${match.dataset.matchid}: sheet=${matchStr}, today=${todayStr}`);
-
-    if (!matchStr) {
-      button.disabled = true;
-      button.textContent = "No Date";
+    if (!rawDate) {
+      match.querySelector('button').disabled = true;
+      match.querySelector('button').textContent = "No Date";
       return;
     }
 
-    if (todayStr === matchStr) {
+    const matchDate = new Date(rawDate);
+    const button = match.querySelector('button');
+    match.classList.remove("live");
+
+    console.log(`→ Match ${match.dataset.matchid}: sheet=${matchDate.toDateString()}, today=${today.toDateString()}`);
+
+    if (sameDay(matchDate, today)) {
       match.classList.remove('disabled');
-      match.classList.add("live"); // ✨ highlight live match
+      match.classList.add("live");
       button.disabled = false;
       button.textContent = "Vote";
       button.onclick = () => openModal(match);
-    } else if (todayStr < matchStr) {
+    } else if (matchDate > today) {
       button.disabled = true;
-      button.textContent = "Opens " + matchStr;
+      button.textContent = "Opens " + rawDate;
     } else {
       button.disabled = true;
       button.textContent = "Voting Closed";
@@ -623,13 +614,14 @@ function enableMatches() {
 
 /* ---------- Mobile auto-open today’s round ---------- */
 function openTodayRound() {
-  const todayStr = getTodayStr();
+  const today = new Date();
   let todayMatch = null;
 
   document.querySelectorAll('.match').forEach(match => {
     const rawDate = (match.dataset.date || "").trim();
-    const matchStr = rawDate.split(" ")[0].trim();
-    if (matchStr === todayStr) {
+    if (!rawDate) return;
+    const matchDate = new Date(rawDate);
+    if (sameDay(matchDate, today)) {
       todayMatch = match;
     }
   });
@@ -718,9 +710,8 @@ function launchConfetti() {
   }
 }
 
-/* ---------- Champion Banner (desktop + mobile) ---------- */
+/* ---------- Champion Banner ---------- */
 function showChampion(name) {
-  // Desktop
   const finalRound = document.querySelector("#round4 .matches");
   if (finalRound) {
     const existing = document.querySelector("#champion-banner");
@@ -736,7 +727,6 @@ function showChampion(name) {
     finalRound.appendChild(banner);
   }
 
-  // Mobile
   const finalRoundMobile = document.querySelector("#mobile-round4 .matches");
   if (finalRoundMobile) {
     const existingMobile = document.querySelector("#champion-banner-mobile");
@@ -755,7 +745,8 @@ function showChampion(name) {
 }
 
 loadMatches();
-
+</script>
+  
   </script>
 </body>
 </html>
