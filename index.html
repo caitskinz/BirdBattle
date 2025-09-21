@@ -675,17 +675,18 @@ function sendVote(choiceImg) {
     choice: choice,
     voter: localStorage.getItem("voterId") || ""
   });
-  console.log("📡 Sending to:", WEBAPP_URL);
+
+  // 👇 Update to your Netlify function URL
+  const WEBAPP_URL = "https://<your-site>.netlify.app/.netlify/functions/vote-proxy";
 
   fetch(WEBAPP_URL, {
     method: "POST",
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       matchId: currentMatchId,
       choice: choice,
       voter: localStorage.getItem("voterId") || ""
-    }),
-    headers: { "Content-Type": "application/json" },
-    mode: "cors" // ensure CORS preflight
+    })
   })
     .then(async (res) => {
       console.log("🌐 Raw response:", res);
