@@ -446,6 +446,15 @@ function safeImage(url) {
   return isNA(v) ? PLACEHOLDER_IMG : v;
 }
 
+// ✅ Local date in YYYY-MM-DD (not UTC)
+function getTodayStr() {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function showMobileRound(round) {
   document.querySelectorAll('.mobile-round').forEach(r => r.classList.remove('active'));
   document.querySelectorAll('.round-selector button').forEach(b => b.classList.remove('active'));
@@ -579,7 +588,7 @@ async function loadMatches() {
 
 /* ---------- Date-aware enableMatches ---------- */
 function enableMatches() {
-  const todayStr = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  const todayStr = getTodayStr(); // ✅ local timezone
 
   document.querySelectorAll('.match').forEach(match => {
     const rawDate = (match.dataset.date || "").trim();
@@ -611,7 +620,7 @@ function enableMatches() {
 
 /* ---------- Mobile auto-open today’s round ---------- */
 function openTodayRound() {
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getTodayStr();
   let todayMatch = null;
 
   document.querySelectorAll('.match').forEach(match => {
