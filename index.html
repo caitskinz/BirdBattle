@@ -421,11 +421,18 @@ button:disabled {
   <div id="voteModal" class="modal">
     <div class="modal-content">
       <h2 id="modalTitle">Choose your bird</h2>
+      <input 
+  type="text" 
+  id="voterNameInput" 
+  placeholder="Enter your name" 
+  style="padding:8px; margin:10px 0; width:80%; border-radius:6px; border:1px solid #ccc;"
+/>
+
       <div id="choices"></div>
       <button onclick="closeModal()">Close</button>
     </div>
   </div>
-  <script>
+ <script>
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?output=csv";
 let currentMatchId = null;
 
@@ -449,10 +456,9 @@ function sameDay(d1, d2) {
          d1.getMonth() === d2.getMonth() &&
          d1.getDate() === d2.getDate();
 }
-// ✅ safer date parsing
 function parseSheetDate(raw) {
   if (!raw) return null;
-  const cleaned = raw.trim().split(" ")[0]; // drop time if present
+  const cleaned = raw.trim().split(" ")[0];
   const [y, m, d] = cleaned.split("-");
   if (!y || !m || !d) return null;
   return new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
@@ -583,9 +589,7 @@ async function loadMatches() {
 
 /* ---------- Date-aware enableMatches ---------- */
 function enableMatches() {
-  const today = new Date(); // local
-  console.log("📅 Today (local):", today.toDateString());
-
+  const today = new Date();
   document.querySelectorAll('.match').forEach(match => {
     const matchDate = parseSheetDate(match.dataset.date);
     const button = match.querySelector('button');
@@ -596,8 +600,6 @@ function enableMatches() {
       button.textContent = "No Date";
       return;
     }
-
-    console.log(`→ Match ${match.dataset.matchid}: sheet=${matchDate.toDateString()}, today=${today.toDateString()}`);
 
     if (sameDay(matchDate, today)) {
       match.classList.remove('disabled');
@@ -615,18 +617,15 @@ function enableMatches() {
   });
 }
 
-/* ---------- Mobile auto-open today’s round ---------- */
 function openTodayRound() {
   const today = new Date();
   let todayMatch = null;
-
   document.querySelectorAll('.match').forEach(match => {
     const matchDate = parseSheetDate(match.dataset.date);
     if (matchDate && sameDay(matchDate, today)) {
       todayMatch = match;
     }
   });
-
   if (todayMatch) {
     const parentRound = todayMatch.closest('.mobile-round');
     if (parentRound && parentRound.id.startsWith("mobile-")) {
@@ -645,15 +644,8 @@ function openModal(match) {
   const modalTitle = document.getElementById('modalTitle');
   choicesDiv.innerHTML = "";
 
-  const previousVote = localStorage.getItem("voted_match_" + currentMatchId);
-  if (previousVote) {
-    modalTitle.innerText = "You already voted";
-    choicesDiv.innerHTML = `<p>✅ You voted for <b>${previousVote}</b></p>`;
-    document.getElementById('voteModal').style.display = 'flex';
-    return;
-  }
-
   modalTitle.innerText = "Choose your bird";
+
   [0, 1].forEach(i => {
     const choiceImg = document.createElement('img');
     choiceImg.src = imgs[i].src;
@@ -662,42 +654,36 @@ function openModal(match) {
     choiceImg.onclick = () => sendVote(choiceImg);
     choicesDiv.appendChild(choiceImg);
   });
+
   document.getElementById('voteModal').style.display = 'flex';
 }
 function closeModal() { document.getElementById('voteModal').style.display = 'none'; }
 
 function sendVote(choiceImg) {
   const choice = choiceImg.dataset.choice;
+  const voterName = document.getElementById("voterNameInput").value.trim();
 
-  console.log("🕊️ Attempting vote:", {
-    matchId: currentMatchId,
-    choice: choice,
-    voter: localStorage.getItem("voterId") || ""
-  });
+  if (!voterName) {
+    alert("⚠️ Please enter your name before voting!");
+    return;
+  }
 
-  // ✅ Use only your Netlify proxy
+  console.log("🕊️ Attempting vote:", { matchId: currentMatchId, choice, voter: voterName });
+
   const PROXY_URL = "https://MPBirdBattle.netlify.app/.netlify/functions/vote-proxy";
 
   fetch(PROXY_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      matchId: currentMatchId,
-      choice: choice,
-      voter: localStorage.getItem("voterId") || ""
-    })
+    body: JSON.stringify({ matchId: currentMatchId, choice, voter: voterName })
   })
     .then(async (res) => {
-      console.log("🌐 Raw response status:", res.status, res.statusText);
-      console.log("🌐 Raw response headers:", [...res.headers]);
-
       const text = await res.text();
       console.log("🌐 Raw response body:", text);
 
       let data;
       try {
         data = JSON.parse(text);
-        console.log("✅ Parsed response:", data);
       } catch (err) {
         console.error("❌ Failed to parse JSON:", err);
         throw err;
@@ -705,7 +691,6 @@ function sendVote(choiceImg) {
 
       const choices = document.getElementById("choices");
       if (data.status === "success") {
-        localStorage.setItem("voted_match_" + currentMatchId, choice);
         choices.innerHTML = `<p>✅ You voted for <b>${choice}</b></p>`;
         if (currentMatchId === "15") {
           launchConfetti();
