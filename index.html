@@ -423,7 +423,7 @@ const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV
 const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzGewVgcdwcF82TGM4aVtcR0c3nLHxcZkDOrp79WxQXOtN1AzAcimyDDNezFxnrIPYYgA/exec";
 let currentMatchId = null;
 
-const PLACEHOLDER_IMG = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQuxWHiBKyh_J0HW9XpE-a92JUasTY3bYsw1A&s";
+const PLACEHOLDER_IMG = "https://raw.githubusercontent.com/caitskinz/BirdBattle/refs/heads/main/placeholder.jpeg";
 
 function safeImage(url) {
     if (!url || url === "#N/A" || url.trim() === "") {
@@ -524,6 +524,11 @@ async function loadMatches() {
             pair.appendChild(matchDesktop);
         }
         document.querySelector(`#${mobileTarget} .matches`).appendChild(matchMobile);
+
+        // 🏆 Check if Champion should be shown (Final match only)
+        if (data.MatchID === "15" && data.Winner && data.Winner !== "#N/A" && data.Winner.trim() !== "") {
+            showChampion(data.Winner);
+        }
     });
 
     enableMatches();
@@ -593,7 +598,7 @@ function sendVote(choiceImg) {
             else if (data.status === "success") { 
                 choices.innerHTML = `<p>✅ You voted for <b>${choice}</b></p>`; 
 
-                // 🎊 Trigger confetti if it's the Final
+                // 🎊 Confetti if it's the Final
                 if (currentMatchId === "15") {
                     launchConfetti();
                 }
@@ -610,19 +615,57 @@ function sendVote(choiceImg) {
 
 function launchConfetti() {
     const colors = ["#ff7c43", "#ffd23f", "#5bc0be", "#28a745", "#ffffff"];
-    const numConfetti = 60; // adjust density
+    const numConfetti = 60;
 
     for (let i = 0; i < numConfetti; i++) {
         const confetti = document.createElement("div");
         confetti.className = "confetti";
         confetti.style.left = Math.random() * 100 + "vw";
         confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-        confetti.style.animationDuration = 2 + Math.random() * 3 + "s"; // random speed
+        confetti.style.animationDuration = 2 + Math.random() * 3 + "s";
         confetti.style.transform = `rotate(${Math.random() * 360}deg)`;
         document.body.appendChild(confetti);
 
-        // remove after falling
         setTimeout(() => confetti.remove(), 5000);
+    }
+}
+
+function showChampion(name) {
+    // Desktop Final
+    const finalRound = document.querySelector("#round4 .matches");
+    if (finalRound) {
+        const existing = document.querySelector("#champion-banner");
+        if (existing) existing.remove();
+
+        const banner = document.createElement("div");
+        banner.id = "champion-banner";
+        banner.innerHTML = `🏆 Champion: <b>${name}</b>`;
+        banner.style.marginTop = "20px";
+        banner.style.fontSize = "1.3em";
+        banner.style.fontWeight = "bold";
+        banner.style.color = "#ffd23f";
+        banner.style.textShadow = "0 0 10px #ff7c43, 0 0 20px #ffd23f";
+
+        finalRound.appendChild(banner);
+    }
+
+    // Mobile Final
+    const finalRoundMobile = document.querySelector("#mobile-round4 .matches");
+    if (finalRoundMobile) {
+        const existingMobile = document.querySelector("#champion-banner-mobile");
+        if (existingMobile) existingMobile.remove();
+
+        const bannerMobile = document.createElement("div");
+        bannerMobile.id = "champion-banner-mobile";
+        bannerMobile.innerHTML = `🏆 Champion: <b>${name}</b>`;
+        bannerMobile.style.marginTop = "15px";
+        bannerMobile.style.fontSize = "1.2em";
+        bannerMobile.style.fontWeight = "bold";
+        bannerMobile.style.color = "#ffd23f";
+        bannerMobile.style.textShadow = "0 0 8px #ff7c43, 0 0 16px #ffd23f";
+        bannerMobile.style.textAlign = "center";
+
+        finalRoundMobile.appendChild(bannerMobile);
     }
 }
 
