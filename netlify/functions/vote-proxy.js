@@ -1,6 +1,6 @@
 // netlify/functions/vote-proxy.js
 export async function handler(event, context) {
-  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzuHWQAaCbgVHmFOX9345IL03rNUMZGo9luCzwieBIbP2G71x0ariRlL6bWWCSGOYK5hw/exec";
+  const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbwCQwcNOOTY2ygff0tSaMb7hFpWwgFQ-jJPvnnHvajuZrkpfRWAmu_mAQzRfCXCj7pe/exec";
 
   if (event.httpMethod === "OPTIONS") {
     return {
