@@ -577,24 +577,40 @@ async function loadMatches() {
   openTodayRound(); // 🔎 auto-open correct round on mobile
 }
 
+/* ---------- Date-aware enableMatches ---------- */
 function enableMatches() {
-  const today = new Date().toISOString().split('T')[0];
-  document.querySelectorAll('.match').forEach(match => {
-    const matchDate = match.dataset.date;
-    const button = match.querySelector('button');
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0]; // normalize
 
-    // reset live class
+  document.querySelectorAll('.match').forEach(match => {
+    const matchDateStr = (match.dataset.date || "").trim();
+    const button = match.querySelector('button');
     match.classList.remove("live");
 
-    if (today === matchDate) {
+    if (!matchDateStr) {
+      button.disabled = true;
+      button.textContent = "No Date";
+      return;
+    }
+
+    // Normalize match date
+    const parsedMatchDate = new Date(matchDateStr);
+    if (isNaN(parsedMatchDate)) {
+      button.disabled = true;
+      button.textContent = "Invalid Date";
+      return;
+    }
+    const matchStr = parsedMatchDate.toISOString().split('T')[0];
+
+    if (todayStr === matchStr) {
       match.classList.remove('disabled');
       match.classList.add("live"); // ✨ highlight live match
       button.disabled = false;
       button.textContent = "Vote";
       button.onclick = () => openModal(match);
-    } else if (today < matchDate) {
+    } else if (todayStr < matchStr) {
       button.disabled = true;
-      button.textContent = "Opens " + matchDate;
+      button.textContent = "Opens " + matchStr;
     } else {
       button.disabled = true;
       button.textContent = "Voting Closed";
@@ -608,8 +624,15 @@ function openTodayRound() {
   let todayMatch = null;
 
   document.querySelectorAll('.match').forEach(match => {
-    if (match.dataset.date === today) {
-      todayMatch = match;
+    const matchDateStr = (match.dataset.date || "").trim();
+    if (!matchDateStr) return;
+
+    const parsedMatchDate = new Date(matchDateStr);
+    if (!isNaN(parsedMatchDate)) {
+      const matchStr = parsedMatchDate.toISOString().split('T')[0];
+      if (matchStr === today) {
+        todayMatch = match;
+      }
     }
   });
 
