@@ -463,6 +463,7 @@ async function loadMatches() {
     const headerMap = {};
     headers.forEach((h, i) => headerMap[h.trim()] = i);
 
+    // clear old matches
     ["round1-left", "round2-left", "round3-left", "round1-right", "round2-right", "round3-right", "round4",
         "mobile-round1", "mobile-round2", "mobile-round3", "mobile-round4"].forEach(id => {
             document.querySelector(`#${id} .matches`).innerHTML = "";
@@ -470,7 +471,10 @@ async function loadMatches() {
 
     rows.forEach(row => {
         const data = {};
-        Object.keys(headerMap).forEach(h => data[h] = row[headerMap[h]] || "");
+        Object.keys(headerMap).forEach(h => {
+            const value = row[headerMap[h]] || "";
+            data[h] = cleanText(value); // ✅ sanitize all fields
+        });
 
         const matchDesktop = document.createElement("div");
         matchDesktop.className = "match disabled";
@@ -478,12 +482,12 @@ async function loadMatches() {
         matchDesktop.dataset.matchid = data.MatchID;
         matchDesktop.innerHTML = `
           <h3>Match ${data.MatchID}</h3>
-          <img src="${safeImage(data.EntryA_ImageURL)}" alt="${cleanText(data.EntryA_Name)}">
-          <div>${cleanText(data.EntryA_Name)}</div>
-          <span class="nominee">Nominated by ${cleanText(data.EntryA_Nominee)}</span>
-          <img src="${safeImage(data.EntryB_ImageURL)}" alt="${cleanText(data.EntryB_Name)}">
-          <div>${cleanText(data.EntryB_Name)}</div>
-          <span class="nominee">Nominated by ${cleanText(data.EntryB_Nominee)}</span>
+          <img src="${safeImage(data.EntryA_ImageURL)}" alt="${data.EntryA_Name}">
+          <div>${data.EntryA_Name}</div>
+          <span class="nominee">Nominated by ${data.EntryA_Nominee}</span>
+          <img src="${safeImage(data.EntryB_ImageURL)}" alt="${data.EntryB_Name}">
+          <div>${data.EntryB_Name}</div>
+          <span class="nominee">Nominated by ${data.EntryB_Nominee}</span>
           <button disabled>Vote</button>
         `;
 
@@ -493,15 +497,15 @@ async function loadMatches() {
         matchMobile.dataset.matchid = data.MatchID;
         matchMobile.innerHTML = `
           <div class="entry">
-            <img src="${safeImage(data.EntryA_ImageURL)}" alt="${cleanText(data.EntryA_Name)}">
-            <div>${cleanText(data.EntryA_Name)}</div>
-            <span class="nominee">Nominated by ${cleanText(data.EntryA_Nominee)}</span>
+            <img src="${safeImage(data.EntryA_ImageURL)}" alt="${data.EntryA_Name}">
+            <div>${data.EntryA_Name}</div>
+            <span class="nominee">Nominated by ${data.EntryA_Nominee}</span>
           </div>
           <div class="vote"><button disabled>Vote</button></div>
           <div class="entry">
-            <img src="${safeImage(data.EntryB_ImageURL)}" alt="${cleanText(data.EntryB_Name)}">
-            <div>${cleanText(data.EntryB_Name)}</div>
-            <span class="nominee">Nominated by ${cleanText(data.EntryB_Nominee)}</span>
+            <img src="${safeImage(data.EntryB_ImageURL)}" alt="${data.EntryB_Name}">
+            <div>${data.EntryB_Name}</div>
+            <span class="nominee">Nominated by ${data.EntryB_Nominee}</span>
           </div>
         `;
 
@@ -525,8 +529,8 @@ async function loadMatches() {
         }
         document.querySelector(`#${mobileTarget} .matches`).appendChild(matchMobile);
 
-        // 🏆 Check if Champion should be shown (Final match only)
-        if (data.MatchID === "15" && data.Winner && data.Winner !== "#N/A" && data.Winner.trim() !== "") {
+        // 🏆 Champion banner if Winner is filled
+        if (data.MatchID === "15" && data.Winner !== "TBD") {
             showChampion(data.Winner);
         }
     });
@@ -670,6 +674,7 @@ function showChampion(name) {
 }
 
 loadMatches();
+
 
   </script>
 </body>
