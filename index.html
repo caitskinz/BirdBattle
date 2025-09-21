@@ -427,7 +427,6 @@ button:disabled {
   </div>
   <script>
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?output=csv";
-const WEBAPP_URL = "https://script.google.com/macros/s/AKfycbzc4SBvzznKfyq5-ZGlMG0EVEq0z1E9tvrqWKegnuenjrB_McfeHuX1Yk6Dt4HEiEZ5fQ/exec";
 let currentMatchId = null;
 
 const PLACEHOLDER_IMG = "https://raw.githubusercontent.com/caitskinz/BirdBattle/refs/heads/main/placeholder.jpeg";
@@ -676,10 +675,10 @@ function sendVote(choiceImg) {
     voter: localStorage.getItem("voterId") || ""
   });
 
-  // 👇 Update to your Netlify function URL
-  const WEBAPP_URL = "https://MPBirdBattle.netlify.app/.netlify/functions/vote-proxy";
+  // ✅ Use only your Netlify proxy
+  const PROXY_URL = "https://MPBirdBattle.netlify.app/.netlify/functions/vote-proxy";
 
-  fetch(WEBAPP_URL, {
+  fetch(PROXY_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -689,11 +688,15 @@ function sendVote(choiceImg) {
     })
   })
     .then(async (res) => {
-      console.log("🌐 Raw response:", res);
+      console.log("🌐 Raw response status:", res.status, res.statusText);
+      console.log("🌐 Raw response headers:", [...res.headers]);
+
+      const text = await res.text();
+      console.log("🌐 Raw response body:", text);
 
       let data;
       try {
-        data = await res.json();
+        data = JSON.parse(text);
         console.log("✅ Parsed response:", data);
       } catch (err) {
         console.error("❌ Failed to parse JSON:", err);
