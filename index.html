@@ -444,6 +444,17 @@ function showMobileRound(round) {
   document.querySelectorAll('.round-selector button').forEach(b => b.classList.remove('active'));
   document.getElementById('mobile-' + round).classList.add('active');
   document.querySelector(`.round-selector button[onclick="showMobileRound('${round}')"]`).classList.add('active');
+
+  // 🔎 Scroll to today’s active match in this round
+  const activeRound = document.getElementById('mobile-' + round);
+  if (activeRound) {
+    const currentMatch = activeRound.querySelector('.match:not(.disabled)');
+    if (currentMatch) {
+      setTimeout(() => {
+        currentMatch.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 100);
+    }
+  }
 }
 
 function parseCSV(text) {
@@ -489,8 +500,7 @@ async function loadMatches() {
       EntryB_Name: cleanText(raw.EntryB_Name),
       EntryB_ImageURL: safeImage(raw.EntryB_ImageURL),
       EntryB_Nominee: cleanText(raw.EntryB_Nominee),
-      // Winner: prefer empty string until officially set (prevents "TBD" banner)
-      Winner: cleanText(raw.Winner, "")
+      Winner: isNA(raw.Winner) ? "" : String(raw.Winner).trim()
     };
 
     // Desktop card
@@ -557,6 +567,7 @@ async function loadMatches() {
   });
 
   enableMatches();
+  openTodayRound(); // 🔎 auto-open correct round on mobile
 }
 
 function enableMatches() {
@@ -577,6 +588,26 @@ function enableMatches() {
       button.textContent = "Voting Closed";
     }
   });
+}
+
+/* ---------- Mobile auto-open today’s round ---------- */
+function openTodayRound() {
+  const today = new Date().toISOString().split('T')[0];
+  let todayMatch = null;
+
+  document.querySelectorAll('.match').forEach(match => {
+    if (match.dataset.date === today) {
+      todayMatch = match;
+    }
+  });
+
+  if (todayMatch) {
+    const parentRound = todayMatch.closest('.mobile-round');
+    if (parentRound && parentRound.id.startsWith("mobile-")) {
+      const roundName = parentRound.id.replace("mobile-", "");
+      showMobileRound(roundName);
+    }
+  }
 }
 
 /* ---------- Modal + Voting ---------- */
@@ -626,7 +657,7 @@ function sendVote(choiceImg) {
     } else if (data.status === "success") {
       choices.innerHTML = `<p>✅ You voted for <b>${choice}</b></p>`;
       if (currentMatchId === "15") {
-        launchConfetti(); // fun, but not the official winner banner
+        launchConfetti();
       }
     } else {
       choices.innerHTML = `<p style="color:red">❌ Error: ${data.message}</p>`;
@@ -691,6 +722,7 @@ function showChampion(name) {
 }
 
 loadMatches();
+
 
   </script>
 </body>
