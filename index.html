@@ -209,25 +209,20 @@ button:disabled {
   align-items: center;
 }
 
-.modal-content {
-  background: #1c2541;
-  color: #fff;
-  padding: 30px;
-  border-radius: 14px;
-  text-align: center;
-  max-width: 450px;
-  border: 3px solid #5bc0be;
+/* Bigger modal on desktop */
+@media (min-width: 769px) {
+  .modal-content {
+    max-width: 700px;   /* wider */
+    padding: 40px;      /* more breathing room */
+  }
+
+  .modal-content img {
+    width: 160px;       /* bigger bird images */
+    height: 160px;
+    margin: 20px;
+  }
 }
 
-.modal-content img {
-  width: 120px;
-  height: 120px;
-  margin: 15px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 3px solid transparent;
-  transition: transform 0.2s ease, border 0.2s ease;
-}
 
 .modal-content img:hover {
   border: 3px solid #ffd23f;
