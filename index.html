@@ -434,6 +434,7 @@ button:disabled {
   </div>
  <script>
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?output=csv";
+const PROXY_URL = "https://MPBirdBattle.netlify.app/.netlify/functions/vote-proxy";
 let currentMatchId = null;
 
 const PLACEHOLDER_IMG = "https://raw.githubusercontent.com/caitskinz/BirdBattle/refs/heads/main/placeholder.jpeg";
@@ -464,6 +465,7 @@ function parseSheetDate(raw) {
   return new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
 }
 
+/* ---------- Mobile Round Toggle ---------- */
 function showMobileRound(round) {
   document.querySelectorAll('.mobile-round').forEach(r => r.classList.remove('active'));
   document.querySelectorAll('.round-selector button').forEach(b => b.classList.remove('active'));
@@ -481,6 +483,7 @@ function showMobileRound(round) {
   }
 }
 
+/* ---------- CSV Parser ---------- */
 function parseCSV(text) {
   return text.trim().split("\n").map(line => {
     const regex = /("([^"]*)"|[^,]+)/g;
@@ -493,7 +496,7 @@ function parseCSV(text) {
   });
 }
 
-/* ---------- Main Render ---------- */
+/* ---------- Load Matches ---------- */
 async function loadMatches() {
   const response = await fetch(SHEET_URL);
   const text = await response.text();
@@ -530,12 +533,16 @@ async function loadMatches() {
     matchDesktop.dataset.matchid = data.MatchID;
     matchDesktop.innerHTML = `
       <h3>Match ${data.MatchID}</h3>
-      <img src="${data.EntryA_ImageURL}" alt="${data.EntryA_Name}">
-      <div>${data.EntryA_Name}</div>
-      <span class="nominee">Nominated by ${data.EntryA_Nominee}</span>
-      <img src="${data.EntryB_ImageURL}" alt="${data.EntryB_Name}">
-      <div>${data.EntryB_Name}</div>
-      <span class="nominee">Nominated by ${data.EntryB_Nominee}</span>
+      <div class="entry">
+        <img src="${data.EntryA_ImageURL}" alt="${data.EntryA_Name}">
+        <div class="bird-name">${data.EntryA_Name}</div>
+        <span class="nominee">Nominated by ${data.EntryA_Nominee}</span>
+      </div>
+      <div class="entry">
+        <img src="${data.EntryB_ImageURL}" alt="${data.EntryB_Name}">
+        <div class="bird-name">${data.EntryB_Name}</div>
+        <span class="nominee">Nominated by ${data.EntryB_Nominee}</span>
+      </div>
       <button disabled>Vote</button>
     `;
 
@@ -546,13 +553,13 @@ async function loadMatches() {
     matchMobile.innerHTML = `
       <div class="entry">
         <img src="${data.EntryA_ImageURL}" alt="${data.EntryA_Name}">
-        <div>${data.EntryA_Name}</div>
+        <div class="bird-name">${data.EntryA_Name}</div>
         <span class="nominee">Nominated by ${data.EntryA_Nominee}</span>
       </div>
       <div class="vote"><button disabled>Vote</button></div>
       <div class="entry">
         <img src="${data.EntryB_ImageURL}" alt="${data.EntryB_Name}">
-        <div>${data.EntryB_Name}</div>
+        <div class="bird-name">${data.EntryB_Name}</div>
         <span class="nominee">Nominated by ${data.EntryB_Nominee}</span>
       </div>
     `;
@@ -587,7 +594,7 @@ async function loadMatches() {
   openTodayRound();
 }
 
-/* ---------- Date-aware enableMatches ---------- */
+/* ---------- Enable Matches by Date ---------- */
 function enableMatches() {
   const today = new Date();
   document.querySelectorAll('.match').forEach(match => {
@@ -617,6 +624,7 @@ function enableMatches() {
   });
 }
 
+/* ---------- Mobile auto-open today's round ---------- */
 function openTodayRound() {
   const today = new Date();
   let todayMatch = null;
@@ -638,19 +646,21 @@ function openTodayRound() {
 /* ---------- Modal + Voting ---------- */
 function openModal(match) {
   currentMatchId = match.dataset.matchid;
-  const imgs = match.querySelectorAll('img');
-  const names = match.querySelectorAll('div');
   const choicesDiv = document.getElementById('choices');
   const modalTitle = document.getElementById('modalTitle');
   choicesDiv.innerHTML = "";
 
   modalTitle.innerText = "Choose your bird";
 
+  // Get only the bird-name divs inside this match
+  const names = match.querySelectorAll('.bird-name');
+  const imgs = match.querySelectorAll('img');
+
   [0, 1].forEach(i => {
     const choiceImg = document.createElement('img');
     choiceImg.src = imgs[i].src;
-    choiceImg.alt = names[i].innerText;
-    choiceImg.dataset.choice = names[i].innerText;
+    choiceImg.alt = names[i].innerText.trim();
+    choiceImg.dataset.choice = names[i].innerText.trim();
     choiceImg.onclick = () => sendVote(choiceImg);
     choicesDiv.appendChild(choiceImg);
   });
@@ -668,24 +678,22 @@ function sendVote(choiceImg) {
     return;
   }
 
-  console.log("🕊️ Attempting vote:", { matchId: currentMatchId, choice, voter: voterName });
-
-  const PROXY_URL = "https://MPBirdBattle.netlify.app/.netlify/functions/vote-proxy";
-
   fetch(PROXY_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ matchId: currentMatchId, choice, voter: voterName })
+    body: JSON.stringify({
+      matchId: currentMatchId,
+      choice: choice,
+      voter: voterName
+    })
   })
     .then(async (res) => {
       const text = await res.text();
-      console.log("🌐 Raw response body:", text);
-
       let data;
       try {
         data = JSON.parse(text);
       } catch (err) {
-        console.error("❌ Failed to parse JSON:", err);
+        console.error("❌ Failed to parse JSON:", err, text);
         throw err;
       }
 
@@ -760,5 +768,6 @@ function showChampion(name) {
 
 loadMatches();
 </script>
+
 </body>
 </html>
