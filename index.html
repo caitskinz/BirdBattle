@@ -32,14 +32,25 @@ h1 {
 
 
 /* ===== Bracket Layout ===== */
+/* Bracket wrapper: allows horizontal scroll */
+.bracket-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* smooth scrolling on macOS/iOS */
+  padding-bottom: 10px; /* keeps scrollbar off bracket */
+}
+
+/* Bracket: enforces minimum width */
 .bracket {
   display: flex !important;
   justify-content: center;
   align-items: stretch;
   gap: 40px;
   margin: 30px auto;
+  min-width: 1200px; /* ensure rounds don’t squish */
   max-width: 1600px;
 }
+
 
 .side {
   display: flex;
@@ -353,7 +364,7 @@ button:disabled {
 <body>
   <h1>🥊🐦 Battle of the Birds 🐦🥊</h1>
 
-  <!-- Bracket (desktop) -->
+  <div class="bracket-wrapper"><!-- Bracket (desktop) -->
   <div class="bracket">
     <div class="side left">
       <div class="round" id="round3-left">
@@ -390,6 +401,7 @@ button:disabled {
       </div>
     </div>
   </div>
+  </div>  
 
   <!-- Mobile -->
   <div class="mobile-rounds">
