@@ -622,14 +622,16 @@ async function loadMatches() {
     const mobileContainer = document.querySelector(`#${mobileTarget} .matches`);
     if (mobileContainer) mobileContainer.appendChild(matchMobile);
 
-    if (data.MatchID === "15") {
+   if (data.MatchID === "15") {
   if (data.Winner.toLowerCase() === "tie" || data.Winner.toLowerCase() === "draw") {
-    // Tie result detected — show the tie modal
+    // Tie detected → show modal with both birds
     showTieModal(data.EntryA_Name, data.EntryA_ImageURL, data.EntryB_Name, data.EntryB_ImageURL);
   } else if (data.Winner) {
+    // Otherwise, show normal champion banner
     showChampion(data.Winner);
   }
 }
+
 
   });
 
@@ -815,23 +817,28 @@ loadMatches();
 function showTieModal(birdA, imgA, birdB, imgB) {
   const tieModal = document.getElementById('tieModal');
   const tieImages = document.getElementById('tieImages');
+  
+  // Fill the modal with both birds' images and names
   tieImages.innerHTML = `
-    <div>
-      <img src="${imgA}" alt="${birdA}">
-      <div><b>${birdA}</b></div>
+    <div style="text-align:center;">
+      <img src="${imgA}" alt="${birdA}" style="width:140px;height:140px;border-radius:50%;border:3px solid #5bc0be;">
+      <div style="margin-top:10px;font-weight:bold;color:#ffd23f;">${birdA}</div>
     </div>
-    <div>
-      <img src="${imgB}" alt="${birdB}">
-      <div><b>${birdB}</b></div>
+    <div style="text-align:center;">
+      <img src="${imgB}" alt="${birdB}" style="width:140px;height:140px;border-radius:50%;border:3px solid #5bc0be;">
+      <div style="margin-top:10px;font-weight:bold;color:#ffd23f;">${birdB}</div>
     </div>
   `;
+
+  // Show modal + launch confetti
   tieModal.style.display = 'flex';
-  launchConfetti(); // celebrate the tie!
+  launchConfetti();
 }
 
 function closeTieModal() {
   document.getElementById('tieModal').style.display = 'none';
 }
+
 
 </script>
 
