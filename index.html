@@ -459,6 +459,16 @@ button:disabled {
       <button onclick="closeModal()">Close</button>
     </div>
   </div>
+  <!-- Tie Modal -->
+<div id="tieModal" class="modal">
+  <div class="modal-content">
+    <h2>🤝 It’s a Tie! 🤝</h2>
+    <p>The final battle ended in a perfect draw between our champion birds!</p>
+    <div id="tieImages" style="display:flex; justify-content:center; flex-wrap:wrap; gap:20px; margin-top:20px;"></div>
+    <button onclick="closeTieModal()">Close</button>
+  </div>
+</div>
+
  <script>
 const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?output=csv";
 const PROXY_URL = "https://MPBirdBattle.netlify.app/.netlify/functions/vote-proxy";
@@ -612,9 +622,15 @@ async function loadMatches() {
     const mobileContainer = document.querySelector(`#${mobileTarget} .matches`);
     if (mobileContainer) mobileContainer.appendChild(matchMobile);
 
-    if (data.MatchID === "15" && data.Winner) {
-      showChampion(data.Winner);
-    }
+    if (data.MatchID === "15") {
+  if (data.Winner.toLowerCase() === "tie" || data.Winner.toLowerCase() === "draw") {
+    // Tie result detected — show the tie modal
+    showTieModal(data.EntryA_Name, data.EntryA_ImageURL, data.EntryB_Name, data.EntryB_ImageURL);
+  } else if (data.Winner) {
+    showChampion(data.Winner);
+  }
+}
+
   });
 
   enableMatches();
@@ -794,6 +810,29 @@ function showChampion(name) {
 }
 
 loadMatches();
+
+/* ---------- Tie Modal ---------- */
+function showTieModal(birdA, imgA, birdB, imgB) {
+  const tieModal = document.getElementById('tieModal');
+  const tieImages = document.getElementById('tieImages');
+  tieImages.innerHTML = `
+    <div>
+      <img src="${imgA}" alt="${birdA}">
+      <div><b>${birdA}</b></div>
+    </div>
+    <div>
+      <img src="${imgB}" alt="${birdB}">
+      <div><b>${birdB}</b></div>
+    </div>
+  `;
+  tieModal.style.display = 'flex';
+  launchConfetti(); // celebrate the tie!
+}
+
+function closeTieModal() {
+  document.getElementById('tieModal').style.display = 'none';
+}
+
 </script>
 
 </body>
