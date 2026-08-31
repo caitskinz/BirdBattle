@@ -5,52 +5,73 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Battle of the Birds</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
+  /* ===== Palette =====
+     Bush green   #1F3A2E   page background, primary text-on-cream
+     Kowhai       #F4C430   headline / accent fill
+     Pohutukawa   #C8102E   vs badge / winner / danger accent
+     Cream        #F7F1E3   card surfaces
+     Sky teal     #7FB8B0   secondary accent / borders
+  */
+
   /* ===== Base Layout ===== */
 body {
-  font-family: "Segoe UI", Roboto, sans-serif;
-  background: linear-gradient(135deg, #1c2541, #3a506b);
+  font-family: 'Nunito', "Segoe UI", Roboto, sans-serif;
+  background: #1F3A2E;
   margin: 0;
   padding: 0;
-  color: #fff;
+  color: #F7F1E3;
 }
 
 h1 {
   display: block;
   text-align: center;
-  margin: 20px auto;
-  font-size: 2.5em;
-  font-weight: bold;
-  background: linear-gradient(90deg, #ffd23f, #ff7c43);
-  color: #1c2541;
-  border-radius: 16px;
-  padding: 15px 25px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-  width: fit-content;         /* shrink wrap */
-  max-width: 90%;             /* responsive */
+  margin: 24px auto 8px;
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 2.3em;
+  font-weight: 800;
+  background: #F4C430;
+  color: #1F3A2E;
+  border-radius: 24px;
+  padding: 14px 30px;
+  box-shadow: 5px 5px 0 rgba(0,0,0,0.25);
+  width: fit-content;
+  max-width: 90%;
 }
+
+.nav-link {
+  display: block;
+  text-align: center;
+  margin: 0 0 20px;
+}
+.nav-link a {
+  color: #F4C430;
+  font-weight: 700;
+  text-decoration: none;
+}
+.nav-link a:hover { text-decoration: underline; }
 
 
 /* ===== Bracket Layout ===== */
-/* Bracket wrapper: allows horizontal scroll */
 .bracket-wrapper {
   width: 100%;
   overflow-x: auto;
-  -webkit-overflow-scrolling: touch; /* smooth scrolling on macOS/iOS */
-  padding-bottom: 10px; /* keeps scrollbar off bracket */
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 10px;
 }
 
-/* Bracket: enforces minimum width */
 .bracket {
   display: flex !important;
   justify-content: center;
   align-items: stretch;
   gap: 40px;
   margin: 30px auto;
-  min-width: 1200px; /* ensure rounds don’t squish */
+  min-width: 1200px;
   max-width: 1600px;
 }
-
 
 .side {
   display: flex;
@@ -75,127 +96,133 @@ h1 {
 .round {
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly; /* evenly spread matches */
+  justify-content: space-evenly;
   flex: 1;
   position: relative;
-  min-height: 600px; /* adjust based on how tall you want the bracket */
+  min-height: 600px;
 }
 
 .round h2 {
   margin-bottom: 15px;
-  font-size: 1.2em;
-  font-weight: 600;
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 1.15em;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1px;
-  color: #ffd23f;
-  text-shadow: 0 2px 5px rgba(0,0,0,0.7);
+  color: #F4C430;
 }
 
 /* ===== Matches ===== */
 .match {
   width: 240px;
-  padding: 15px;
-  border: 3px solid #5bc0be;
-  border-radius: 14px;
-  background: #0b132b;
+  padding: 16px;
+  border: 3px solid #7FB8B0;
+  border-radius: 22px;
+  background: #F7F1E3;
+  color: #1F3A2E;
   text-align: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.6);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .match:hover {
-  transform: translateY(-6px) scale(1.02);
-  box-shadow: 0 8px 16px rgba(0,0,0,0.7);
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 rgba(0,0,0,0.25);
 }
 
 .match h3 {
-  margin: 8px 0 12px;
-  font-size: 1em;
-  color: #ffd23f;
+  margin: 0 0 12px;
+  font-family: 'Baloo 2', sans-serif;
+  font-size: 0.95em;
+  color: #C8102E;
 }
 
 /* ===== Images ===== */
 .match img {
-  width: 90px;
-  height: 90px;
-  border-radius: 50%;
+  width: 84px;
+  height: 84px;
+  border-radius: 42% 58% 61% 39% / 45% 41% 59% 55%;
   margin: 6px 0;
   object-fit: cover;
-  border: solid 3px #5bc0be;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  border: solid 3px #7FB8B0;
+  transition: transform 0.2s ease;
 }
 
 .match img:hover {
-  transform: scale(1.1);
-  border-color: #ffd23f;
+  transform: scale(1.08);
+}
+
+.bird-name {
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  color: #1F3A2E;
 }
 
 .nominee {
   font-size: 0.75em;
-  color: #ccc;
+  color: #5b5b52;
   display: block;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
 }
 
 /* ===== Buttons ===== */
 button {
-  padding: 10px 18px;
+  padding: 9px 18px;
   border: none;
-  border-radius: 8px;
-  background: #ff7c43;
-  font-weight: bold;
-  color: #fff;
+  border-radius: 20px;
+  background: #F4C430;
+  font-family: 'Baloo 2', sans-serif;
+  font-weight: 700;
+  color: #1F3A2E;
   cursor: pointer;
   margin-top: 8px;
-  transition: background 0.25s ease, transform 0.2s ease;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
 }
 
 button:hover:not(:disabled) {
-  background: #d94f20;
-  transform: scale(1.05);
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+}
+
+button:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.3);
 }
 
 button:disabled {
-  background: #555;
-  color: #bbb;
+  background: #cfc9b8;
+  color: #7a7a70;
+  box-shadow: none;
   cursor: not-allowed;
 }
 
 /* ===== Winner Highlight ===== */
 .winner {
-  border-color: #28a745 !important;
-  background: linear-gradient(135deg, #0b6623, #14532d) !important;
-  box-shadow: 0 0 20px rgba(40,167,69,0.7);
+  border-color: #C8102E !important;
+  background: #fff8e8 !important;
+  box-shadow: 4px 4px 0 rgba(200,16,46,0.4) !important;
 }
 
-
-
-/* ===== Final Crown Connector ===== */
+/* ===== Final Trophy Connector ===== */
 #round4 .matches::before {
-  content: "👑";
+  content: "🏆";
   position: absolute;
   top: -50px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 2.5em;
-  text-shadow: 0 0 15px gold, 0 0 30px orange;
-  animation: crownGlow 2s ease-in-out infinite alternate;
+  font-size: 2.3em;
+  animation: trophyPop 0.6s ease-out 1;
 }
 
 #round4 .matches {
   position: relative;
 }
 
-@keyframes crownGlow {
-  0%   { text-shadow: 0 0 10px gold, 0 0 20px orange; }
-  100% { text-shadow: 0 0 25px #ffd23f, 0 0 40px #ff7c43; }
-}
-
-/* ===== Animated Glow Effect ===== */
-@keyframes flow {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+@keyframes trophyPop {
+  0%   { transform: translateX(-50%) scale(0.4); opacity: 0; }
+  70%  { transform: translateX(-50%) scale(1.15); opacity: 1; }
+  100% { transform: translateX(-50%) scale(1); }
 }
 
 /* ===== Modal ===== */
@@ -204,47 +231,60 @@ button:disabled {
   position: fixed;
   top: 0; left: 0;
   width: 100%; height: 100%;
-  background: rgba(0,0,0,0.7);
+  background: rgba(31,58,46,0.75);
   justify-content: center;
   align-items: center;
 }
 
 .modal-content {
-  background: #1c2541;
-  color: #fff;
+  background: #F7F1E3;
+  color: #1F3A2E;
   padding: 30px;
-  border-radius: 14px;
+  border-radius: 22px;
   text-align: center;
-  max-width: 450px;   /* default mobile size */
-  border: 3px solid #5bc0be;
+  max-width: 450px;
+  border: 3px solid #7FB8B0;
+}
+
+.modal-content h2 {
+  font-family: 'Baloo 2', sans-serif;
+}
+
+.modal-content input {
+  padding: 8px;
+  margin: 10px 0;
+  width: 80%;
+  border-radius: 10px;
+  border: 2px solid #7FB8B0;
+  font-family: 'Nunito', sans-serif;
 }
 
 .modal-content img {
-  width: 120px;
-  height: 120px;
-  margin: 15px;
-  border-radius: 50%;
+  width: 110px;
+  height: 110px;
+  margin: 12px;
+  border-radius: 42% 58% 61% 39% / 45% 41% 59% 55%;
   object-fit: cover;
-  border: 3px solid transparent;
-  transition: transform 0.2s ease, border 0.2s ease;
+  border: 3px solid #7FB8B0;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
 }
 
 .modal-content img:hover {
-  border: 3px solid #ffd23f;
-  transform: scale(1.1);
+  border-color: #C8102E;
+  transform: scale(1.08);
 }
 
-/* Bigger modal on desktop */
 @media (min-width: 769px) {
   .modal-content {
-    max-width: 700px;   /* wider modal */
-    padding: 40px;      /* more breathing room */
+    max-width: 700px;
+    padding: 40px;
   }
 
   .modal-content img {
-    width: 160px;       /* larger bird images */
-    height: 160px;
-    margin: 20px;
+    width: 150px;
+    height: 150px;
+    margin: 18px;
   }
 }
 
@@ -254,7 +294,6 @@ button:disabled {
   top: -10px;
   width: 10px;
   height: 14px;
-  background-color: red;
   opacity: 0.9;
   z-index: 9999;
   animation: fall linear forwards;
@@ -268,7 +307,6 @@ button:disabled {
   }
 }
 
-/* Default: show desktop, hide mobile */
 .bracket {
   display: flex !important;
 }
@@ -276,18 +314,34 @@ button:disabled {
   display: none !important;
 }
 
-    .match.live {
-  border-color: #ffd23f !important;
-  box-shadow: 0 0 10px #ffd23f, 0 0 20px #ff7c43;
+.match.live {
+  border-color: #F4C430 !important;
+  box-shadow: 4px 4px 0 rgba(244,196,48,0.5);
   transform: scale(1.02);
   transition: all 0.3s ease-in-out;
 }
 
+.match.voted {
+  opacity: 0.75;
+}
+
+.already-voted-tag {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.8em;
+  color: #C8102E;
+  font-weight: bold;
+}
+
+.choice-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
 
 /* ===== Mobile ===== */
 @media (max-width: 768px) {
   body {
-    background: #0b132b;
+    background: #1F3A2E;
   }
 
   .bracket {
@@ -308,19 +362,16 @@ button:disabled {
   }
 
   .round-selector button {
-    padding: 6px 12px;
-    border: none;
-    border-radius: 6px;
-    cursor: pointer;
-    background: #3a506b;
-    color: white;
-    border: 2px solid transparent;
+    padding: 6px 14px;
+    border-radius: 16px;
+    background: #2d4f3d;
+    color: #F7F1E3;
+    box-shadow: none;
   }
 
   .round-selector button.active {
-    background: #ffd23f;
-    color: #1c2541;
-    border: 2px solid #ff7c43;
+    background: #F4C430;
+    color: #1F3A2E;
   }
 
   .mobile-round {
@@ -353,11 +404,11 @@ button:disabled {
   }
 
   .entry img {
-    width: 65px;
-    height: 65px;
-    border-radius: 50%;
+    width: 62px;
+    height: 62px;
+    border-radius: 42% 58% 61% 39% / 45% 41% 59% 55%;
     object-fit: cover;
-    border: 2px solid #5bc0be;
+    border: 2px solid #7FB8B0;
     margin-bottom: 5px;
   }
 
@@ -368,7 +419,7 @@ button:disabled {
 
   .nominee {
     font-size: 0.7em;
-    color: #bbb;
+    color: #5b5b52;
   }
 }
 
@@ -376,7 +427,8 @@ button:disabled {
 </head>
 
 <body>
-  <h1>🥊🐦 Battle of the Birds 🐦🥊</h1>
+  <h1>🐣 Battle of the Birds 🐣</h1>
+  <p class="nav-link"><a href="choose-your-fighter.html">Haven't picked your fighter yet? Choose here →</a></p>
 
   <div class="bracket-wrapper"><!-- Bracket (desktop) -->
   <div class="bracket">
@@ -452,7 +504,6 @@ button:disabled {
   type="text" 
   id="voterNameInput" 
   placeholder="Enter your name" 
-  style="padding:8px; margin:10px 0; width:80%; border-radius:6px; border:1px solid #ccc;"
 />
 
       <div id="choices"></div>
@@ -470,11 +521,47 @@ button:disabled {
 </div>
 
  <script>
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSM6C8TDthgQV63gtOA8cJ2_PyF6_9R4zwXVWZyBCs2aeaKMC5m1LfJD9vJYRq14gqixAm2jbvHPDkb/pub?output=csv";
-const PROXY_URL = "https://MPBirdBattle.netlify.app/.netlify/functions/vote-proxy";
+const SHEET_URL = null; // no longer used — kept for reference
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlxiB-UbRH5eVoUTqVuYoXUhAAeeM4-fM82TQ0awUmLimNMBeyqkOZE1YkXAEoVDZs/exec";
+
 let currentMatchId = null;
+let matchesCache = null;
+let matchesCacheAt = 0;
+const MATCHES_CLIENT_CACHE_MS = 20000; // avoid refetching on every interaction
 
 const PLACEHOLDER_IMG = "https://raw.githubusercontent.com/caitskinz/BirdBattle/refs/heads/main/placeholder.jpeg";
+
+/* ---------- Local device / vote tracking ---------- */
+function getDeviceId() {
+  let id = localStorage.getItem("birdBattleDeviceId");
+  if (!id) {
+    id = "dev_" + Date.now() + "_" + Math.random().toString(36).slice(2, 10);
+    localStorage.setItem("birdBattleDeviceId", id);
+  }
+  return id;
+}
+
+function getLocalVotes() {
+  try {
+    return JSON.parse(localStorage.getItem("birdBattleVotes") || "{}");
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveLocalVote(matchId, choice) {
+  const votes = getLocalVotes();
+  votes[matchId] = choice;
+  localStorage.setItem("birdBattleVotes", JSON.stringify(votes));
+}
+
+function getSavedVoterName() {
+  return localStorage.getItem("birdBattleVoterName") || "";
+}
+
+function saveVoterName(name) {
+  localStorage.setItem("birdBattleVoterName", name);
+}
 
 /* ---------- Helpers ---------- */
 function isNA(value) {
@@ -487,7 +574,8 @@ function cleanText(value, fallback = "TBD") {
 }
 function safeImage(url) {
   const v = String(url ?? "").trim();
-  return isNA(v) ? PLACEHOLDER_IMG : v;
+  const finalUrl = isNA(v) ? PLACEHOLDER_IMG : v;
+  return "https://wsrv.nl/?url=" + encodeURIComponent(finalUrl) + "&w=240&h=240&fit=cover&q=80";
 }
 function sameDay(d1, d2) {
   return d1.getFullYear() === d2.getFullYear() &&
@@ -496,7 +584,7 @@ function sameDay(d1, d2) {
 }
 function parseSheetDate(raw) {
   if (!raw) return null;
-  const cleaned = raw.trim().split(" ")[0];
+  const cleaned = String(raw).trim().split(" ")[0];
   const [y, m, d] = cleaned.split("-");
   if (!y || !m || !d) return null;
   return new Date(parseInt(y), parseInt(m) - 1, parseInt(d));
@@ -520,27 +608,24 @@ function showMobileRound(round) {
   }
 }
 
-/* ---------- CSV Parser ---------- */
-function parseCSV(text) {
-  return text.trim().split("\n").map(line => {
-    const regex = /("([^"]*)"|[^,]+)/g;
-    const row = [];
-    let match;
-    while ((match = regex.exec(line))) {
-      row.push(match[2] !== undefined ? match[2] : match[0]);
-    }
-    return row;
-  });
-}
-
 /* ---------- Load Matches ---------- */
-async function loadMatches() {
-  const response = await fetch(SHEET_URL);
-  const text = await response.text();
-  const rows = parseCSV(text);
-  const headers = rows.shift();
-  const headerMap = {};
-  headers.forEach((h, i) => headerMap[h.trim()] = i);
+async function loadMatches(force = false) {
+  const now = Date.now();
+  let rows;
+
+  if (!force && matchesCache && (now - matchesCacheAt) < MATCHES_CLIENT_CACHE_MS) {
+    rows = matchesCache;
+  } else {
+    const response = await fetch(APPS_SCRIPT_URL);
+    const data = await response.json();
+    if (data.status !== "success") {
+      console.error("Failed to load matches:", data.message);
+      return;
+    }
+    rows = data.matches;
+    matchesCache = rows;
+    matchesCacheAt = now;
+  }
 
   ["round1-left","round2-left","round3-left","round1-right","round2-right","round3-right","round4",
    "mobile-round1","mobile-round2","mobile-round3","mobile-round4"].forEach(id => {
@@ -548,10 +633,9 @@ async function loadMatches() {
     if (el) el.innerHTML = "";
   });
 
-  rows.forEach(row => {
-    const raw = {};
-    Object.keys(headerMap).forEach(h => raw[h] = row[headerMap[h]] ?? "");
+  const localVotes = getLocalVotes();
 
+  rows.forEach(raw => {
     const data = {
       MatchID: String(raw.MatchID ?? "").trim(),
       Date: String(raw.Date ?? "").trim(),
@@ -564,6 +648,8 @@ async function loadMatches() {
       Winner: isNA(raw.Winner) ? "" : String(raw.Winner).trim()
     };
 
+    const alreadyVotedChoice = localVotes[data.MatchID];
+
     const matchDesktop = document.createElement("div");
     matchDesktop.className = "match disabled";
     matchDesktop.dataset.date = data.Date;
@@ -571,16 +657,18 @@ async function loadMatches() {
     matchDesktop.innerHTML = `
       <h3>Match ${data.MatchID}</h3>
       <div class="entry">
-        <img src="${data.EntryA_ImageURL}" alt="${data.EntryA_Name}">
+        <img src="${data.EntryA_ImageURL}" alt="${data.EntryA_Name}" loading="lazy">
         <div class="bird-name">${data.EntryA_Name}</div>
         <span class="nominee">Nominated by ${data.EntryA_Nominee}</span>
       </div>
+      <div style="font-family:'Baloo 2', sans-serif; color:#C8102E; font-weight:700; font-size:0.85em;">VS</div>
       <div class="entry">
-        <img src="${data.EntryB_ImageURL}" alt="${data.EntryB_Name}">
+        <img src="${data.EntryB_ImageURL}" alt="${data.EntryB_Name}" loading="lazy">
         <div class="bird-name">${data.EntryB_Name}</div>
         <span class="nominee">Nominated by ${data.EntryB_Nominee}</span>
       </div>
       <button disabled>Vote</button>
+      ${alreadyVotedChoice ? `<div class="already-voted-tag">✅ You voted: ${alreadyVotedChoice}</div>` : ""}
     `;
 
     const matchMobile = document.createElement("div");
@@ -589,17 +677,26 @@ async function loadMatches() {
     matchMobile.dataset.matchid = data.MatchID;
     matchMobile.innerHTML = `
       <div class="entry">
-        <img src="${data.EntryA_ImageURL}" alt="${data.EntryA_Name}">
+        <img src="${data.EntryA_ImageURL}" alt="${data.EntryA_Name}" loading="lazy">
         <div class="bird-name">${data.EntryA_Name}</div>
         <span class="nominee">Nominated by ${data.EntryA_Nominee}</span>
       </div>
-      <div class="vote"><button disabled>Vote</button></div>
+      <div class="vote">
+        <div style="font-family:'Baloo 2', sans-serif; color:#C8102E; font-weight:700; font-size:0.8em; margin-bottom:4px;">VS</div>
+        <button disabled>Vote</button>
+        ${alreadyVotedChoice ? `<div class="already-voted-tag">✅ ${alreadyVotedChoice}</div>` : ""}
+      </div>
       <div class="entry">
-        <img src="${data.EntryB_ImageURL}" alt="${data.EntryB_Name}">
+        <img src="${data.EntryB_ImageURL}" alt="${data.EntryB_Name}" loading="lazy">
         <div class="bird-name">${data.EntryB_Name}</div>
         <span class="nominee">Nominated by ${data.EntryB_Nominee}</span>
       </div>
     `;
+
+    if (alreadyVotedChoice) {
+      matchDesktop.classList.add("voted");
+      matchMobile.classList.add("voted");
+    }
 
     let targetId, mobileTarget;
     const mid = parseInt(data.MatchID, 10);
@@ -622,17 +719,13 @@ async function loadMatches() {
     const mobileContainer = document.querySelector(`#${mobileTarget} .matches`);
     if (mobileContainer) mobileContainer.appendChild(matchMobile);
 
-   if (data.MatchID === "15") {
-  if (data.Winner.toLowerCase() === "tie" || data.Winner.toLowerCase() === "draw") {
-    // Tie detected → show modal with both birds
-    showTieModal(data.EntryA_Name, data.EntryA_ImageURL, data.EntryB_Name, data.EntryB_ImageURL);
-  } else if (data.Winner) {
-    // Otherwise, show normal champion banner
-    showChampion(data.Winner);
-  }
-}
-
-
+    if (data.MatchID === "15") {
+      if (data.Winner.toLowerCase() === "tie" || data.Winner.toLowerCase() === "draw") {
+        showTieModal(data.EntryA_Name, data.EntryA_ImageURL, data.EntryB_Name, data.EntryB_ImageURL);
+      } else if (data.Winner) {
+        showChampion(data.Winner);
+      }
+    }
   });
 
   enableMatches();
@@ -642,10 +735,19 @@ async function loadMatches() {
 /* ---------- Enable Matches by Date ---------- */
 function enableMatches() {
   const today = new Date();
+  const localVotes = getLocalVotes();
+
   document.querySelectorAll('.match').forEach(match => {
     const matchDate = parseSheetDate(match.dataset.date);
     const button = match.querySelector('button');
+    const matchId = match.dataset.matchid;
     match.classList.remove("live");
+
+    if (localVotes[matchId]) {
+      button.disabled = true;
+      button.textContent = "Voted ✅";
+      return;
+    }
 
     if (!matchDate) {
       button.disabled = true;
@@ -693,11 +795,13 @@ function openModal(match) {
   currentMatchId = match.dataset.matchid;
   const choicesDiv = document.getElementById('choices');
   const modalTitle = document.getElementById('modalTitle');
+  const nameInput = document.getElementById('voterNameInput');
   choicesDiv.innerHTML = "";
+  nameInput.disabled = false;
+  nameInput.value = getSavedVoterName();
 
   modalTitle.innerText = "Choose your bird";
 
-  // Get only the bird-name divs inside this match
   const names = match.querySelectorAll('.bird-name');
   const imgs = match.querySelectorAll('img');
 
@@ -723,47 +827,58 @@ function sendVote(choiceImg) {
     return;
   }
 
-  fetch(PROXY_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      matchId: currentMatchId,
-      choice: choice,
-      voter: voterName
-    })
-  })
-    .then(async (res) => {
-      const text = await res.text();
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (err) {
-        console.error("❌ Failed to parse JSON:", err, text);
-        throw err;
-      }
+  const choicesDiv = document.getElementById("choices");
+  const nameInput = document.getElementById("voterNameInput");
+  choicesDiv.querySelectorAll('img').forEach(img => img.classList.add('choice-disabled'));
+  nameInput.disabled = true;
+  choicesDiv.insertAdjacentHTML('beforeend', '<p id="votingStatus">Voting…</p>');
 
-      const choices = document.getElementById("choices");
-      if (data.status === "success") {
-        choices.innerHTML = `<p>✅ You voted for <b>${choice}</b></p>`;
-        if (currentMatchId === "15") {
-          launchConfetti();
-        }
-      } else if (data.status === "duplicate") {
-        choices.innerHTML = `<p>⚠️ You already voted in this match.</p>`;
-      } else {
-        choices.innerHTML = `<p style="color:red">❌ Error: ${data.message}</p>`;
-      }
-    })
-    .catch((err) => {
-      console.error("🚨 Vote failed:", err);
-      document.getElementById("choices").innerHTML =
-        `<p style="color:red">❌ Vote failed. Please try again.</p>`;
-    });
+  saveVoterName(voterName);
+  const deviceId = getDeviceId();
+
+  postVote({ matchId: currentMatchId, choice, voter: voterName, deviceId })
+    .then(data => handleVoteResult(data, choice))
+    .catch(() => retryVoteOnce({ matchId: currentMatchId, choice, voter: voterName, deviceId }, choice));
+}
+
+function postVote(payload) {
+  return fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify(payload)
+  }).then(res => res.text()).then(text => JSON.parse(text));
+}
+
+function retryVoteOnce(payload, choice) {
+  setTimeout(() => {
+    postVote(payload)
+      .then(data => handleVoteResult(data, choice))
+      .catch(() => {
+        document.getElementById("choices").innerHTML =
+          `<p style="color:#C8102E">❌ Vote failed. Please try again.</p>`;
+      });
+  }, 1500);
+}
+
+function handleVoteResult(data, choice) {
+  const choices = document.getElementById("choices");
+  if (data.status === "success") {
+    choices.innerHTML = `<p>✅ You voted for <b>${choice}</b></p>`;
+    saveLocalVote(currentMatchId, choice);
+    if (currentMatchId === "15") {
+      launchConfetti();
+    }
+    loadMatches(true);
+  } else if (data.status === "duplicate") {
+    choices.innerHTML = `<p>⚠️ You already voted in this match.</p>`;
+    saveLocalVote(currentMatchId, choice);
+  } else {
+    choices.innerHTML = `<p style="color:#C8102E">❌ Error: ${data.message || "Something went wrong."}</p>`;
+  }
 }
 
 /* ---------- Confetti ---------- */
 function launchConfetti() {
-  const colors = ["#ff7c43", "#ffd23f", "#5bc0be", "#28a745", "#ffffff"];
+  const colors = ["#F4C430", "#C8102E", "#7FB8B0", "#F7F1E3", "#3E6B52"];
   const numConfetti = 60;
   for (let i = 0; i < numConfetti; i++) {
     const confetti = document.createElement("div");
@@ -787,10 +902,10 @@ function showChampion(name) {
     banner.id = "champion-banner";
     banner.innerHTML = `🏆 Champion: <b>${name}</b>`;
     banner.style.marginTop = "20px";
+    banner.style.fontFamily = "'Baloo 2', sans-serif";
     banner.style.fontSize = "1.3em";
-    banner.style.fontWeight = "bold";
-    banner.style.color = "#ffd23f";
-    banner.style.textShadow = "0 0 10px #ff7c43, 0 0 20px #ffd23f";
+    banner.style.fontWeight = "700";
+    banner.style.color = "#F4C430";
     finalRound.appendChild(banner);
   }
 
@@ -802,35 +917,31 @@ function showChampion(name) {
     bannerMobile.id = "champion-banner-mobile";
     bannerMobile.innerHTML = `🏆 Champion: <b>${name}</b>`;
     bannerMobile.style.marginTop = "15px";
+    bannerMobile.style.fontFamily = "'Baloo 2', sans-serif";
     bannerMobile.style.fontSize = "1.2em";
-    bannerMobile.style.fontWeight = "bold";
-    bannerMobile.style.color = "#ffd23f";
-    bannerMobile.style.textShadow = "0 0 8px #ff7c43, 0 0 16px #ffd23f";
+    bannerMobile.style.fontWeight = "700";
+    bannerMobile.style.color = "#F4C430";
     bannerMobile.style.textAlign = "center";
     finalRoundMobile.appendChild(bannerMobile);
   }
 }
 
-loadMatches();
-
 /* ---------- Tie Modal ---------- */
 function showTieModal(birdA, imgA, birdB, imgB) {
   const tieModal = document.getElementById('tieModal');
   const tieImages = document.getElementById('tieImages');
-  
-  // Fill the modal with both birds' images and names
+
   tieImages.innerHTML = `
     <div style="text-align:center;">
-      <img src="${imgA}" alt="${birdA}" style="width:140px;height:140px;border-radius:50%;border:3px solid #5bc0be;">
-      <div style="margin-top:10px;font-weight:bold;color:#ffd23f;">${birdA}</div>
+      <img src="${imgA}" alt="${birdA}" style="width:140px;height:140px;border-radius:42% 58% 61% 39% / 45% 41% 59% 55%;border:3px solid #7FB8B0;object-fit:cover;">
+      <div style="margin-top:10px;font-family:'Baloo 2', sans-serif;font-weight:700;color:#F4C430;">${birdA}</div>
     </div>
     <div style="text-align:center;">
-      <img src="${imgB}" alt="${birdB}" style="width:140px;height:140px;border-radius:50%;border:3px solid #5bc0be;">
-      <div style="margin-top:10px;font-weight:bold;color:#ffd23f;">${birdB}</div>
+      <img src="${imgB}" alt="${birdB}" style="width:140px;height:140px;border-radius:42% 58% 61% 39% / 45% 41% 59% 55%;border:3px solid #7FB8B0;object-fit:cover;">
+      <div style="margin-top:10px;font-family:'Baloo 2', sans-serif;font-weight:700;color:#F4C430;">${birdB}</div>
     </div>
   `;
 
-  // Show modal + launch confetti
   tieModal.style.display = 'flex';
   launchConfetti();
 }
@@ -839,6 +950,9 @@ function closeTieModal() {
   document.getElementById('tieModal').style.display = 'none';
 }
 
+/* ---------- Init ---------- */
+loadMatches();
+setInterval(() => loadMatches(true), 60000);
 
 </script>
 
