@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Choose Your Fighter — Battle of the Birds</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+  body {
+    font-family: 'Nunito', "Segoe UI", Roboto, sans-serif;
+    background: #1F3A2E;
+    margin: 0;
+    padding: 0;
+    color: #F7F1E3;
+  }
+
+  h1 {
+    display: block;
+    text-align: center;
+    margin: 24px auto 8px;
+    font-family: 'Baloo 2', sans-serif;
+    font-size: 2em;
+    font-weight: 800;
+    background: #F4C430;
+    color: #1F3A2E;
+    border-radius: 24px;
+    padding: 14px 28px;
+    box-shadow: 5px 5px 0 rgba(0,0,0,0.25);
+    width: fit-content;
+    max-width: 90%;
+  }
+
+  .nav-link {
+    display: block;
+    text-align: center;
+    margin-bottom: 6px;
+  }
+  .nav-link a { color: #F4C430; font-weight: 700; text-decoration: none; }
+  .nav-link a:hover { text-decoration: underline; }
+
+  .intro {
+    text-align: center;
+    max-width: 600px;
+    margin: 0 auto 24px;
+    padding: 0 20px;
+    color: #d7ead6;
+  }
+
+  #mineBanner {
+    display: none;
+    max-width: 500px;
+    margin: 0 auto 24px;
+    background: #F4C430;
+    color: #1F3A2E;
+    border-radius: 18px;
+    padding: 14px;
+    text-align: center;
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.25);
+  }
+
+  .bird-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 18px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 10px 20px 60px;
+  }
+
+  .bird-card {
+    background: #F7F1E3;
+    color: #1F3A2E;
+    border: 3px solid #7FB8B0;
+    border-radius: 22px;
+    padding: 14px;
+    text-align: center;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .bird-card:not(.taken):not(.mine):hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 rgba(0,0,0,0.25);
+  }
+
+  .bird-card.taken {
+    opacity: 0.55;
+    border-color: #b9b9ac;
+  }
+
+  .bird-card.mine {
+    border-color: #C8102E;
+    box-shadow: 4px 4px 0 rgba(200,16,46,0.35);
+  }
+
+  .bird-card img {
+    width: 96px;
+    height: 96px;
+    border-radius: 42% 58% 61% 39% / 45% 41% 59% 55%;
+    object-fit: cover;
+    border: 3px solid #7FB8B0;
+    margin-bottom: 8px;
+  }
+
+  .bird-card.taken img { border-color: #b9b9ac; }
+  .bird-card.mine img { border-color: #C8102E; }
+
+  .bird-name {
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+
+  .claimed-tag {
+    font-size: 0.8em;
+    color: #C8102E;
+    display: block;
+    margin-top: 6px;
+    font-weight: 700;
+  }
+
+  button {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    background: #F4C430;
+    font-family: 'Baloo 2', sans-serif;
+    font-weight: 700;
+    color: #1F3A2E;
+    cursor: pointer;
+    margin-top: 6px;
+    box-shadow: 3px 3px 0 rgba(0,0,0,0.25);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  button:hover:not(:disabled) {
+    transform: translate(-1px, -1px);
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+  }
+  button:active:not(:disabled) {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+  }
+  button:disabled {
+    background: #cfc9b8;
+    color: #7a7a70;
+    box-shadow: none;
+    cursor: not-allowed;
+  }
+  button.secondary {
+    background: transparent;
+    color: #F7F1E3;
+    box-shadow: none;
+    border: 2px solid #7FB8B0;
+  }
+
+  .modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(31,58,46,0.75);
+    justify-content: center;
+    align-items: center;
+    z-index: 10;
+  }
+  .modal-content {
+    background: #F7F1E3;
+    color: #1F3A2E;
+    padding: 30px;
+    border-radius: 22px;
+    text-align: center;
+    max-width: 400px;
+    border: 3px solid #7FB8B0;
+  }
+  .modal-content h2 { font-family: 'Baloo 2', sans-serif; }
+  .modal-content img {
+    width: 120px;
+    height: 120px;
+    border-radius: 42% 58% 61% 39% / 45% 41% 59% 55%;
+    object-fit: cover;
+    border: 3px solid #7FB8B0;
+    margin-bottom: 12px;
+  }
+  .modal-content input {
+    padding: 8px;
+    margin: 10px 0;
+    width: 80%;
+    border-radius: 10px;
+    border: 2px solid #7FB8B0;
+    font-family: 'Nunito', sans-serif;
+  }
+  #claimStatus { margin-top: 10px; font-weight: 700; }
+  </style>
+</head>
+
+<body>
+  <h1>🐣 Choose Your Fighter 🐣</h1>
+  <p class="nav-link"><a href="index.html">← Back to the bracket</a></p>
+  <p class="intro">Pick the bird you're backing this year. First come, first served — once a bird is claimed, it's off the board. One bird per person.</p>
+
+  <div id="mineBanner"></div>
+
+  <div id="birdGrid" class="bird-grid"></div>
+
+  <div id="claimModal" class="modal">
+    <div class="modal-content">
+      <img id="claimModalImg" src="" alt="">
+      <h2 id="claimModalTitle">Claim this bird?</h2>
+      <input type="text" id="claimerNameInput" placeholder="Enter your name">
+      <div>
+        <button onclick="confirmClaim()">Claim it!</button>
+        <button class="secondary" onclick="closeClaimModal()">Cancel</button>
+      </div>
+      <div id="claimStatus"></div>
+    </div>
+  </div>
+
+<script>
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlxiB-UbRH5eVoUTqVuYoXUhAAeeM4-fM82TQ0awUmLimNMBeyqkOZE1YkXAEoVDZs/exec";
+const PLACEHOLDER_IMG = "https://raw.githubusercontent.com/caitskinz/BirdBattle/refs/heads/main/placeholder.jpeg";
+const POLL_MS = 5000;
+
+let pendingBird = null;
+let pendingImg = null;
+
+function getDeviceId() {
+  let id = localStorage.getItem("birdBattleDeviceId");
+  if (!id) {
+    id = "dev_" + Date.now() + "_" + Math.random().toString(36).slice(2, 10);
+    localStorage.setItem("birdBattleDeviceId", id);
+  }
+  return id;
+}
+function getSavedVoterName() {
+  return localStorage.getItem("birdBattleVoterName") || "";
+}
+function saveVoterName(name) {
+  localStorage.setItem("birdBattleVoterName", name);
+}
+function getMyClaim() {
+  try {
+    return JSON.parse(localStorage.getItem("birdBattleMyClaim") || "null");
+  } catch (e) {
+    return null;
+  }
+}
+function saveMyClaim(birdName, claimer) {
+  localStorage.setItem("birdBattleMyClaim", JSON.stringify({ bird: birdName, claimer }));
+}
+
+function isNA(value) {
+  const v = String(value ?? "").trim();
+  return v === "" || v.toUpperCase() === "#N/A" || v.toUpperCase() === "N/A";
+}
+function safeImage(url) {
+  const v = String(url ?? "").trim();
+  const finalUrl = isNA(v) ? PLACEHOLDER_IMG : v;
+  return "https://wsrv.nl/?url=" + encodeURIComponent(finalUrl) + "&w=220&h=220&fit=cover&q=80";
+}
+
+async function loadBirds() {
+  let data;
+  try {
+    const res = await fetch(APPS_SCRIPT_URL + "?type=birds");
+    data = await res.json();
+  } catch (e) {
+    console.error("Failed to load birds:", e);
+    return;
+  }
+  if (data.status !== "success") {
+    console.error("Failed to load birds:", data.message);
+    return;
+  }
+
+  const myClaim = getMyClaim();
+  const grid = document.getElementById("birdGrid");
+  const mineBanner = document.getElementById("mineBanner");
+  grid.innerHTML = "";
+
+  if (myClaim) {
+    mineBanner.style.display = "block";
+    mineBanner.innerHTML = `🏆 You've claimed <b>${myClaim.bird}</b>! Good luck.`;
+  } else {
+    mineBanner.style.display = "none";
+  }
+
+  data.birds.forEach(bird => {
+    const name = String(bird.BirdName ?? "").trim();
+    if (!name) return;
+    const img = safeImage(bird.ImageURL);
+    const claimedBy = String(bird.ClaimedBy ?? "").trim();
+    const isMine = myClaim && myClaim.bird.toLowerCase() === name.toLowerCase();
+    const isTaken = claimedBy !== "" && !isMine;
+
+    const card = document.createElement("div");
+    card.className = "bird-card" + (isTaken ? " taken" : "") + (isMine ? " mine" : "");
+    card.innerHTML = `
+      <img src="${img}" alt="${name}" loading="lazy">
+      <div class="bird-name">${name}</div>
+      ${
+        isMine
+          ? `<span class="claimed-tag">✅ This is yours!</span>`
+          : isTaken
+            ? `<span class="claimed-tag">🔒 Claimed by ${claimedBy}</span>`
+            : myClaim
+              ? `<button disabled>Already picked</button>`
+              : `<button onclick="openClaimModal('${name.replace(/'/g, "\\'")}', '${img}')">Claim this bird</button>`
+      }
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function openClaimModal(birdName, imgUrl) {
+  pendingBird = birdName;
+  pendingImg = imgUrl;
+  document.getElementById("claimModalImg").src = imgUrl;
+  document.getElementById("claimModalTitle").innerText = `Claim ${birdName}?`;
+  document.getElementById("claimerNameInput").value = getSavedVoterName();
+  document.getElementById("claimerNameInput").disabled = false;
+  document.getElementById("claimStatus").innerHTML = "";
+  document.getElementById("claimModal").style.display = "flex";
+}
+function closeClaimModal() {
+  document.getElementById("claimModal").style.display = "none";
+}
+
+function confirmClaim() {
+  const claimer = document.getElementById("claimerNameInput").value.trim();
+  if (!claimer) {
+    alert("⚠️ Please enter your name!");
+    return;
+  }
+
+  document.getElementById("claimerNameInput").disabled = true;
+  document.querySelectorAll("#claimModal button").forEach(b => b.disabled = true);
+  document.getElementById("claimStatus").innerText = "Claiming…";
+
+  saveVoterName(claimer);
+  const deviceId = getDeviceId();
+
+  fetch(APPS_SCRIPT_URL, {
+    method: "POST",
+    body: JSON.stringify({ type: "claim", birdName: pendingBird, claimer, deviceId })
+  })
+    .then(res => res.text())
+    .then(text => JSON.parse(text))
+    .then(data => {
+      if (data.status === "success") {
+        saveMyClaim(data.bird, claimer);
+        document.getElementById("claimStatus").innerHTML = `✅ You claimed <b>${data.bird}</b>!`;
+        setTimeout(() => { closeClaimModal(); loadBirds(); }, 1200);
+      } else if (data.status === "taken") {
+        document.getElementById("claimStatus").innerHTML = `⚠️ Sorry, someone just claimed this bird first.`;
+        loadBirds();
+      } else if (data.status === "already_claimed_by_you") {
+        saveMyClaim(data.bird, claimer);
+        document.getElementById("claimStatus").innerHTML = `You've already claimed <b>${data.bird}</b>.`;
+        setTimeout(() => { closeClaimModal(); loadBirds(); }, 1200);
+      } else {
+        document.getElementById("claimStatus").innerHTML = `❌ ${data.message || "Something went wrong."}`;
+        document.getElementById("claimerNameInput").disabled = false;
+        document.querySelectorAll("#claimModal button").forEach(b => b.disabled = false);
+      }
+    })
+    .catch(() => {
+      document.getElementById("claimStatus").innerHTML = `❌ Claim failed. Please try again.`;
+      document.getElementById("claimerNameInput").disabled = false;
+      document.querySelectorAll("#claimModal button").forEach(b => b.disabled = false);
+    });
+}
+
+loadBirds();
+setInterval(loadBirds, POLL_MS);
+</script>
+
+</body>
+</html>
