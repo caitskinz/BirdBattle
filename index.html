@@ -7,7 +7,7 @@
   <title>Battle of the Birds</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
   <style>
   /* ===== Palette =====
      Bush green   #1F3A2E   page background, primary text-on-cream
@@ -30,7 +30,7 @@ h1 {
   display: block;
   text-align: center;
   margin: 24px auto 8px;
-  font-family: 'Baloo 2', sans-serif;
+  font-family: 'Quicksand', sans-serif;
   font-size: 2.3em;
   font-weight: 800;
   background: #F4C430;
@@ -104,7 +104,7 @@ h1 {
 
 .round h2 {
   margin-bottom: 15px;
-  font-family: 'Baloo 2', sans-serif;
+  font-family: 'Quicksand', sans-serif;
   font-size: 1.15em;
   font-weight: 700;
   text-transform: uppercase;
@@ -132,7 +132,7 @@ h1 {
 
 .match h3 {
   margin: 0 0 12px;
-  font-family: 'Baloo 2', sans-serif;
+  font-family: 'Quicksand', sans-serif;
   font-size: 0.95em;
   color: #C8102E;
 }
@@ -153,7 +153,7 @@ h1 {
 }
 
 .bird-name {
-  font-family: 'Baloo 2', sans-serif;
+  font-family: 'Quicksand', sans-serif;
   font-weight: 700;
   color: #1F3A2E;
 }
@@ -171,7 +171,7 @@ button {
   border: none;
   border-radius: 20px;
   background: #F4C430;
-  font-family: 'Baloo 2', sans-serif;
+  font-family: 'Quicksand', sans-serif;
   font-weight: 700;
   color: #1F3A2E;
   cursor: pointer;
@@ -247,7 +247,7 @@ button:disabled {
 }
 
 .modal-content h2 {
-  font-family: 'Baloo 2', sans-serif;
+  font-family: 'Quicksand', sans-serif;
 }
 
 .modal-content input {
@@ -661,7 +661,7 @@ async function loadMatches(force = false) {
         <div class="bird-name">${data.EntryA_Name}</div>
         <span class="nominee">Nominated by ${data.EntryA_Nominee}</span>
       </div>
-      <div style="font-family:'Baloo 2', sans-serif; color:#C8102E; font-weight:700; font-size:0.85em;">VS</div>
+      <div style="font-family:'Quicksand', sans-serif; color:#C8102E; font-weight:700; font-size:0.85em;">VS</div>
       <div class="entry">
         <img src="${data.EntryB_ImageURL}" alt="${data.EntryB_Name}" loading="lazy">
         <div class="bird-name">${data.EntryB_Name}</div>
@@ -682,7 +682,7 @@ async function loadMatches(force = false) {
         <span class="nominee">Nominated by ${data.EntryA_Nominee}</span>
       </div>
       <div class="vote">
-        <div style="font-family:'Baloo 2', sans-serif; color:#C8102E; font-weight:700; font-size:0.8em; margin-bottom:4px;">VS</div>
+        <div style="font-family:'Quicksand', sans-serif; color:#C8102E; font-weight:700; font-size:0.8em; margin-bottom:4px;">VS</div>
         <button disabled>Vote</button>
         ${alreadyVotedChoice ? `<div class="already-voted-tag">✅ ${alreadyVotedChoice}</div>` : ""}
       </div>
@@ -902,7 +902,7 @@ function showChampion(name) {
     banner.id = "champion-banner";
     banner.innerHTML = `🏆 Champion: <b>${name}</b>`;
     banner.style.marginTop = "20px";
-    banner.style.fontFamily = "'Baloo 2', sans-serif";
+    banner.style.fontFamily = "'Quicksand', sans-serif";
     banner.style.fontSize = "1.3em";
     banner.style.fontWeight = "700";
     banner.style.color = "#F4C430";
@@ -917,7 +917,7 @@ function showChampion(name) {
     bannerMobile.id = "champion-banner-mobile";
     bannerMobile.innerHTML = `🏆 Champion: <b>${name}</b>`;
     bannerMobile.style.marginTop = "15px";
-    bannerMobile.style.fontFamily = "'Baloo 2', sans-serif";
+    bannerMobile.style.fontFamily = "'Quicksand', sans-serif";
     bannerMobile.style.fontSize = "1.2em";
     bannerMobile.style.fontWeight = "700";
     bannerMobile.style.color = "#F4C430";
@@ -934,11 +934,11 @@ function showTieModal(birdA, imgA, birdB, imgB) {
   tieImages.innerHTML = `
     <div style="text-align:center;">
       <img src="${imgA}" alt="${birdA}" style="width:140px;height:140px;border-radius:42% 58% 61% 39% / 45% 41% 59% 55%;border:3px solid #7FB8B0;object-fit:cover;">
-      <div style="margin-top:10px;font-family:'Baloo 2', sans-serif;font-weight:700;color:#F4C430;">${birdA}</div>
+      <div style="margin-top:10px;font-family:'Quicksand', sans-serif;font-weight:700;color:#F4C430;">${birdA}</div>
     </div>
     <div style="text-align:center;">
       <img src="${imgB}" alt="${birdB}" style="width:140px;height:140px;border-radius:42% 58% 61% 39% / 45% 41% 59% 55%;border:3px solid #7FB8B0;object-fit:cover;">
-      <div style="margin-top:10px;font-family:'Baloo 2', sans-serif;font-weight:700;color:#F4C430;">${birdB}</div>
+      <div style="margin-top:10px;font-family:'Quicksand', sans-serif;font-weight:700;color:#F4C430;">${birdB}</div>
     </div>
   `;
 
