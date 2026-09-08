@@ -15,6 +15,11 @@
      Pohutukawa   #C8102E   vs badge / winner / danger accent
      Cream        #F7F1E3   card surfaces
      Sky teal     #7FB8B0   secondary accent / borders
+
+     Display font: Quicksand (not Baloo 2 — Baloo 2 renders macrons/tohutō
+     poorly; Quicksand is a Google Fonts pick with confirmed correct
+     macron support, still rounded/playful). Body font: Nunito, which
+     already has broad diacritic coverage.
   */
 
   /* ===== Base Layout ===== */
@@ -32,7 +37,7 @@ h1 {
   margin: 24px auto 8px;
   font-family: 'Quicksand', sans-serif;
   font-size: 2.3em;
-  font-weight: 800;
+  font-weight: 700;
   background: #F4C430;
   color: #1F3A2E;
   border-radius: 24px;
@@ -67,10 +72,10 @@ h1 {
   display: flex !important;
   justify-content: center;
   align-items: stretch;
-  gap: 40px;
+  gap: 32px;
   margin: 30px auto;
-  min-width: 1200px;
-  max-width: 1600px;
+  min-width: 1600px;
+  max-width: 2000px;
 }
 
 .side {
@@ -428,7 +433,7 @@ button:disabled {
 
 <body>
   <h1>🐣 Battle of the Birds 🐣</h1>
-  <p class="nav-link"><a href="choose-your-fighter.html">Haven't picked your fighter yet? Choose here →</a></p>
+  <p class="nav-link">May the best bird win!</p>
 
   <div class="bracket-wrapper"><!-- Bracket (desktop) -->
   <div class="bracket">
@@ -442,6 +447,10 @@ button:disabled {
         <div class="matches"></div>
       </div>
       <div class="round" id="round1-left">
+        
+        <div class="matches"></div>
+      </div>
+      <div class="round" id="round0-left">
         
         <div class="matches"></div>
       </div>
@@ -465,6 +474,10 @@ button:disabled {
         
         <div class="matches"></div>
       </div>
+      <div class="round" id="round0-right">
+        
+        <div class="matches"></div>
+      </div>
     </div>
   </div>
   </div>  
@@ -472,13 +485,18 @@ button:disabled {
   <!-- Mobile -->
   <div class="mobile-rounds">
     <div class="round-selector">
-      <button onclick="showMobileRound('round1')" class="active">Round 1</button>
+      <button onclick="showMobileRound('round0')" class="active">Round 1</button>
+      <button onclick="showMobileRound('round1')">Round 2</button>
       <button onclick="showMobileRound('round2')">Quarterfinals</button>
       <button onclick="showMobileRound('round3')">Semifinals</button>
       <button onclick="showMobileRound('round4')">Final</button>
     </div>
-    <div id="mobile-round1" class="mobile-round active">
+    <div id="mobile-round0" class="mobile-round active">
       <h2>Round 1</h2>
+      <div class="matches"></div>
+    </div>
+    <div id="mobile-round1" class="mobile-round">
+      <h2>Round 2</h2>
       <div class="matches"></div>
     </div>
     <div id="mobile-round2" class="mobile-round">
@@ -522,7 +540,7 @@ button:disabled {
 
  <script>
 const SHEET_URL = null; // no longer used — kept for reference
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwlxiB-UbRH5eVoUTqVuYoXUhAAeeM4-fM82TQ0awUmLimNMBeyqkOZE1YkXAEoVDZs/exec";
+const APPS_SCRIPT_URL = "PASTE_YOUR_APPS_SCRIPT_/exec_URL_HERE";
 
 let currentMatchId = null;
 let matchesCache = null;
@@ -627,8 +645,8 @@ async function loadMatches(force = false) {
     matchesCacheAt = now;
   }
 
-  ["round1-left","round2-left","round3-left","round1-right","round2-right","round3-right","round4",
-   "mobile-round1","mobile-round2","mobile-round3","mobile-round4"].forEach(id => {
+  ["round0-left","round1-left","round2-left","round3-left","round0-right","round1-right","round2-right","round3-right","round4",
+   "mobile-round0","mobile-round1","mobile-round2","mobile-round3","mobile-round4"].forEach(id => {
     const el = document.querySelector(`#${id} .matches`);
     if (el) el.innerHTML = "";
   });
@@ -700,13 +718,15 @@ async function loadMatches(force = false) {
 
     let targetId, mobileTarget;
     const mid = parseInt(data.MatchID, 10);
-    if (mid >= 1 && mid <= 4) { targetId="round1-left";  mobileTarget="mobile-round1"; }
-    else if (mid >= 5 && mid <= 8) { targetId="round1-right"; mobileTarget="mobile-round1"; }
-    else if (mid === 9 || mid === 10) { targetId="round2-left"; mobileTarget="mobile-round2"; }
-    else if (mid === 11 || mid === 12) { targetId="round2-right"; mobileTarget="mobile-round2"; }
-    else if (mid === 13) { targetId="round3-left"; mobileTarget="mobile-round3"; }
-    else if (mid === 14) { targetId="round3-right"; mobileTarget="mobile-round3"; }
-    else if (mid === 15) { targetId="round4"; mobileTarget="mobile-round4"; }
+    if (mid >= 1 && mid <= 8) { targetId="round0-left"; mobileTarget="mobile-round0"; }
+    else if (mid >= 9 && mid <= 16) { targetId="round0-right"; mobileTarget="mobile-round0"; }
+    else if (mid >= 17 && mid <= 20) { targetId="round1-left"; mobileTarget="mobile-round1"; }
+    else if (mid >= 21 && mid <= 24) { targetId="round1-right"; mobileTarget="mobile-round1"; }
+    else if (mid === 25 || mid === 26) { targetId="round2-left"; mobileTarget="mobile-round2"; }
+    else if (mid === 27 || mid === 28) { targetId="round2-right"; mobileTarget="mobile-round2"; }
+    else if (mid === 29) { targetId="round3-left"; mobileTarget="mobile-round3"; }
+    else if (mid === 30) { targetId="round3-right"; mobileTarget="mobile-round3"; }
+    else if (mid === 31) { targetId="round4"; mobileTarget="mobile-round4"; }
 
     const roundContainer = document.querySelector(`#${targetId} .matches`);
     if (roundContainer) {
@@ -719,7 +739,7 @@ async function loadMatches(force = false) {
     const mobileContainer = document.querySelector(`#${mobileTarget} .matches`);
     if (mobileContainer) mobileContainer.appendChild(matchMobile);
 
-    if (data.MatchID === "15") {
+    if (data.MatchID === "31") {
       if (data.Winner.toLowerCase() === "tie" || data.Winner.toLowerCase() === "draw") {
         showTieModal(data.EntryA_Name, data.EntryA_ImageURL, data.EntryB_Name, data.EntryB_ImageURL);
       } else if (data.Winner) {
@@ -864,7 +884,7 @@ function handleVoteResult(data, choice) {
   if (data.status === "success") {
     choices.innerHTML = `<p>✅ You voted for <b>${choice}</b></p>`;
     saveLocalVote(currentMatchId, choice);
-    if (currentMatchId === "15") {
+    if (currentMatchId === "31") {
       launchConfetti();
     }
     loadMatches(true);
