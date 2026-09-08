@@ -60,55 +60,49 @@ h1 {
 .nav-link a:hover { text-decoration: underline; }
 
 
-/* ===== Bracket Layout ===== */
-.bracket-wrapper {
-  width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  padding-bottom: 10px;
+/* ===== Rounds ===== */
+.mobile-rounds {
+  display: block;
+  padding: 10px;
+  max-width: 600px;
+  margin: 0 auto;
 }
 
-.bracket {
-  display: flex !important;
+.round-selector {
+  display: flex;
   justify-content: center;
-  align-items: stretch;
-  gap: 32px;
-  margin: 30px auto;
-  min-width: 1600px;
-  max-width: 2000px;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
 }
 
-.side {
-  display: flex;
-  flex-direction: row;
-  gap: 20px;
-  flex: 1;
+.round-selector button {
+  padding: 6px 14px;
+  border-radius: 16px;
+  background: #2d4f3d;
+  color: #F7F1E3;
+  box-shadow: none;
 }
 
-.side.left {
-  flex-direction: row-reverse;
+.round-selector button.active {
+  background: #F4C430;
+  color: #1F3A2E;
 }
 
-.center {
-  display: flex;
+.mobile-round {
+  display: none;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  flex: 0 0 auto;
+  gap: 20px;
 }
 
-/* ===== Round Labels ===== */
-.round {
+.mobile-round.active {
   display: flex;
-  flex-direction: column;
-  justify-content: space-evenly;
-  flex: 1;
-  position: relative;
-  min-height: 600px;
 }
 
-.round h2 {
-  margin-bottom: 15px;
+.mobile-round h2 {
+  text-align: center;
+  margin-bottom: 4px;
   font-family: 'Quicksand', sans-serif;
   font-size: 1.15em;
   font-weight: 700;
@@ -133,13 +127,6 @@ h1 {
 .match:hover {
   transform: translate(-2px, -2px);
   box-shadow: 6px 6px 0 rgba(0,0,0,0.25);
-}
-
-.match h3 {
-  margin: 0 0 12px;
-  font-family: 'Quicksand', sans-serif;
-  font-size: 0.95em;
-  color: #C8102E;
 }
 
 /* ===== Images ===== */
@@ -210,17 +197,17 @@ button:disabled {
 }
 
 /* ===== Final Trophy Connector ===== */
-#round4 .matches::before {
+#mobile-round4 .matches::before {
   content: "🏆";
   position: absolute;
-  top: -50px;
+  top: -30px;
   left: 50%;
   transform: translateX(-50%);
   font-size: 2.3em;
   animation: trophyPop 0.6s ease-out 1;
 }
 
-#round4 .matches {
+#mobile-round4 .matches {
   position: relative;
 }
 
@@ -312,13 +299,6 @@ button:disabled {
   }
 }
 
-.bracket {
-  display: flex !important;
-}
-.mobile-rounds {
-  display: none !important;
-}
-
 .match.live {
   border-color: #F4C430 !important;
   box-shadow: 4px 4px 0 rgba(244,196,48,0.5);
@@ -343,89 +323,46 @@ button:disabled {
   pointer-events: none;
 }
 
-/* ===== Mobile ===== */
-@media (max-width: 768px) {
-  body {
-    background: #1F3A2E;
-  }
+/* ===== Match card layout (single layout for all screen sizes) ===== */
+body {
+  background: #1F3A2E;
+}
 
-  .bracket {
-    display: none !important;
-  }
+.match {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 95%;
+  max-width: 450px;
+  margin: 0 auto 12px;
+  padding: 12px;
+}
 
-  .mobile-rounds {
-    display: block !important;
-    padding: 10px;
-  }
+.entry {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  text-align: center;
+}
 
-  .round-selector {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    flex-wrap: wrap;
-  }
+.entry img {
+  width: 62px;
+  height: 62px;
+  border-radius: 42% 58% 61% 39% / 45% 41% 59% 55%;
+  object-fit: cover;
+  border: 2px solid #7FB8B0;
+  margin-bottom: 5px;
+}
 
-  .round-selector button {
-    padding: 6px 14px;
-    border-radius: 16px;
-    background: #2d4f3d;
-    color: #F7F1E3;
-    box-shadow: none;
-  }
+.entry div {
+  font-size: 0.9em;
+  font-weight: bold;
+}
 
-  .round-selector button.active {
-    background: #F4C430;
-    color: #1F3A2E;
-  }
-
-  .mobile-round {
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-  }
-
-  .mobile-round.active {
-    display: flex;
-  }
-
-  .match {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 95%;
-    max-width: 450px;
-    padding: 12px;
-    margin-bottom: 12px;
-  }
-
-  .entry {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    flex: 1;
-    text-align: center;
-  }
-
-  .entry img {
-    width: 62px;
-    height: 62px;
-    border-radius: 42% 58% 61% 39% / 45% 41% 59% 55%;
-    object-fit: cover;
-    border: 2px solid #7FB8B0;
-    margin-bottom: 5px;
-  }
-
-  .entry div {
-    font-size: 0.9em;
-    font-weight: bold;
-  }
-
-  .nominee {
-    font-size: 0.7em;
-    color: #5b5b52;
-  }
+.nominee {
+  font-size: 0.7em;
+  color: #5b5b52;
 }
 
   </style>
@@ -433,56 +370,8 @@ button:disabled {
 
 <body>
   <h1>🐣 Battle of the Birds 🐣</h1>
-  <p class="nav-link">May the best bird win!</p>
+  <p class="nav-link"><a href="choose-your-fighter.html">Haven't picked your fighter yet? Choose here →</a></p>
 
-  <div class="bracket-wrapper"><!-- Bracket (desktop) -->
-  <div class="bracket">
-    <div class="side left">
-      <div class="round" id="round3-left">
-        
-        <div class="matches"></div>
-      </div>
-      <div class="round" id="round2-left">
-        
-        <div class="matches"></div>
-      </div>
-      <div class="round" id="round1-left">
-        
-        <div class="matches"></div>
-      </div>
-      <div class="round" id="round0-left">
-        
-        <div class="matches"></div>
-      </div>
-    </div>
-    <div class="center">
-      <div class="round" id="round4">
-       
-        <div class="matches"></div>
-      </div>
-    </div>
-    <div class="side right">
-      <div class="round" id="round3-right">
-       
-        <div class="matches"></div>
-      </div>
-      <div class="round" id="round2-right">
-        
-        <div class="matches"></div>
-      </div>
-      <div class="round" id="round1-right">
-        
-        <div class="matches"></div>
-      </div>
-      <div class="round" id="round0-right">
-        
-        <div class="matches"></div>
-      </div>
-    </div>
-  </div>
-  </div>  
-
-  <!-- Mobile -->
   <div class="mobile-rounds">
     <div class="round-selector">
       <button onclick="showMobileRound('round0')" class="active">Round 1</button>
@@ -645,8 +534,7 @@ async function loadMatches(force = false) {
     matchesCacheAt = now;
   }
 
-  ["round0-left","round1-left","round2-left","round3-left","round0-right","round1-right","round2-right","round3-right","round4",
-   "mobile-round0","mobile-round1","mobile-round2","mobile-round3","mobile-round4"].forEach(id => {
+  ["mobile-round0","mobile-round1","mobile-round2","mobile-round3","mobile-round4"].forEach(id => {
     const el = document.querySelector(`#${id} .matches`);
     if (el) el.innerHTML = "";
   });
@@ -667,27 +555,6 @@ async function loadMatches(force = false) {
     };
 
     const alreadyVotedChoice = localVotes[data.MatchID];
-
-    const matchDesktop = document.createElement("div");
-    matchDesktop.className = "match disabled";
-    matchDesktop.dataset.date = data.Date;
-    matchDesktop.dataset.matchid = data.MatchID;
-    matchDesktop.innerHTML = `
-      <h3>Match ${data.MatchID}</h3>
-      <div class="entry">
-        <img src="${data.EntryA_ImageURL}" alt="${data.EntryA_Name}" loading="lazy">
-        <div class="bird-name">${data.EntryA_Name}</div>
-        <span class="nominee">Nominated by ${data.EntryA_Nominee}</span>
-      </div>
-      <div style="font-family:'Quicksand', sans-serif; color:#C8102E; font-weight:700; font-size:0.85em;">VS</div>
-      <div class="entry">
-        <img src="${data.EntryB_ImageURL}" alt="${data.EntryB_Name}" loading="lazy">
-        <div class="bird-name">${data.EntryB_Name}</div>
-        <span class="nominee">Nominated by ${data.EntryB_Nominee}</span>
-      </div>
-      <button disabled>Vote</button>
-      ${alreadyVotedChoice ? `<div class="already-voted-tag">✅ You voted: ${alreadyVotedChoice}</div>` : ""}
-    `;
 
     const matchMobile = document.createElement("div");
     matchMobile.className = "match disabled";
@@ -712,30 +579,17 @@ async function loadMatches(force = false) {
     `;
 
     if (alreadyVotedChoice) {
-      matchDesktop.classList.add("voted");
       matchMobile.classList.add("voted");
     }
 
-    let targetId, mobileTarget;
+    let mobileTarget;
     const mid = parseInt(data.MatchID, 10);
-    if (mid >= 1 && mid <= 8) { targetId="round0-left"; mobileTarget="mobile-round0"; }
-    else if (mid >= 9 && mid <= 16) { targetId="round0-right"; mobileTarget="mobile-round0"; }
-    else if (mid >= 17 && mid <= 20) { targetId="round1-left"; mobileTarget="mobile-round1"; }
-    else if (mid >= 21 && mid <= 24) { targetId="round1-right"; mobileTarget="mobile-round1"; }
-    else if (mid === 25 || mid === 26) { targetId="round2-left"; mobileTarget="mobile-round2"; }
-    else if (mid === 27 || mid === 28) { targetId="round2-right"; mobileTarget="mobile-round2"; }
-    else if (mid === 29) { targetId="round3-left"; mobileTarget="mobile-round3"; }
-    else if (mid === 30) { targetId="round3-right"; mobileTarget="mobile-round3"; }
-    else if (mid === 31) { targetId="round4"; mobileTarget="mobile-round4"; }
+    if (mid >= 1 && mid <= 16) mobileTarget = "mobile-round0";
+    else if (mid >= 17 && mid <= 24) mobileTarget = "mobile-round1";
+    else if (mid >= 25 && mid <= 28) mobileTarget = "mobile-round2";
+    else if (mid === 29 || mid === 30) mobileTarget = "mobile-round3";
+    else if (mid === 31) mobileTarget = "mobile-round4";
 
-    const roundContainer = document.querySelector(`#${targetId} .matches`);
-    if (roundContainer) {
-      let pair = roundContainer.lastElementChild && roundContainer.lastElementChild.classList.contains("pair") && roundContainer.lastElementChild.childElementCount < 2
-        ? roundContainer.lastElementChild
-        : Object.assign(document.createElement("div"), { className: "pair" });
-      if (!roundContainer.lastElementChild || roundContainer.lastElementChild.childElementCount >= 2) roundContainer.appendChild(pair);
-      pair.appendChild(matchDesktop);
-    }
     const mobileContainer = document.querySelector(`#${mobileTarget} .matches`);
     if (mobileContainer) mobileContainer.appendChild(matchMobile);
 
@@ -914,35 +768,20 @@ function launchConfetti() {
 
 /* ---------- Champion Banner ---------- */
 function showChampion(name) {
-  const finalRound = document.querySelector("#round4 .matches");
+  const finalRound = document.querySelector("#mobile-round4 .matches");
   if (finalRound) {
     const existing = document.querySelector("#champion-banner");
     if (existing) existing.remove();
     const banner = document.createElement("div");
     banner.id = "champion-banner";
     banner.innerHTML = `🏆 Champion: <b>${name}</b>`;
-    banner.style.marginTop = "20px";
+    banner.style.marginTop = "15px";
     banner.style.fontFamily = "'Quicksand', sans-serif";
-    banner.style.fontSize = "1.3em";
+    banner.style.fontSize = "1.2em";
     banner.style.fontWeight = "700";
     banner.style.color = "#F4C430";
+    banner.style.textAlign = "center";
     finalRound.appendChild(banner);
-  }
-
-  const finalRoundMobile = document.querySelector("#mobile-round4 .matches");
-  if (finalRoundMobile) {
-    const existingMobile = document.querySelector("#champion-banner-mobile");
-    if (existingMobile) existingMobile.remove();
-    const bannerMobile = document.createElement("div");
-    bannerMobile.id = "champion-banner-mobile";
-    bannerMobile.innerHTML = `🏆 Champion: <b>${name}</b>`;
-    bannerMobile.style.marginTop = "15px";
-    bannerMobile.style.fontFamily = "'Quicksand', sans-serif";
-    bannerMobile.style.fontSize = "1.2em";
-    bannerMobile.style.fontWeight = "700";
-    bannerMobile.style.color = "#F4C430";
-    bannerMobile.style.textAlign = "center";
-    finalRoundMobile.appendChild(bannerMobile);
   }
 }
 
