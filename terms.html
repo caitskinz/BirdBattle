@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Battle of the Birds</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+  /* ===== Palette =====
+     Bush green   #1F3A2E   page background, primary text-on-cream
+     Kowhai       #F4C430   headline / accent fill
+     Pohutukawa   #C8102E   vs badge / winner / danger accent
+     Cream        #F7F1E3   card surfaces
+     Sky teal     #7FB8B0   secondary accent / borders
+
+     Display font: Quicksand (not Baloo 2 — Baloo 2 renders macrons/tohutō
+     poorly; Quicksand is a Google Fonts pick with confirmed correct
+     macron support, still rounded/playful). Body font: Nunito, which
+     already has broad diacritic coverage.
+  */
+
+  /* ===== Base Layout ===== */
+body {
+  font-family: 'Nunito', "Segoe UI", Roboto, sans-serif;
+  background: #1F3A2E;
+  margin: 0;
+  padding: 0;
+  color: #F7F1E3;
+}
+
+h1 {
+  display: block;
+  text-align: center;
+  margin: 24px auto 8px;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 2.3em;
+  font-weight: 700;
+  background: #F4C430;
+  color: #1F3A2E;
+  border-radius: 24px;
+  padding: 14px 30px;
+  box-shadow: 5px 5px 0 rgba(0,0,0,0.25);
+  width: fit-content;
+  max-width: 90%;
+}
+
+.nav-link {
+  display: block;
+  text-align: center;
+  margin: 0 0 20px;
+}
+.nav-link a {
+  color: #F4C430;
+  font-weight: 700;
+  text-decoration: none;
+}
+.nav-link a:hover { text-decoration: underline; }
+
+
+/* ===== Rounds ===== */
+.mobile-rounds {
+  display: block;
+  padding: 10px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.round-selector {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.round-selector button {
+  padding: 6px 14px;
+  border-radius: 16px;
+  background: #2d4f3d;
+  color: #F7F1E3;
+  box-shadow: none;
+}
+
+.round-selector button.active {
+  background: #F4C430;
+  color: #1F3A2E;
+}
+
+.mobile-round {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.mobile-round.active {
+  display: flex;
+}
+
+.mobile-round h2 {
+  text-align: center;
+  margin-bottom: 4px;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1.15em;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #F4C430;
+}
+
+/* ===== Matches ===== */
+.match {
+  width: 240px;
+  padding: 16px;
+  border: 3px solid #7FB8B0;
+  border-radius: 22px;
+  background: #F7F1E3;
+  color: #1F3A2E;
+  text-align: center;
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.match:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0 rgba(0,0,0,0.25);
+}
+
+/* ===== Images ===== */
+.match img {
+  width: 84px;
+  height: 84px;
+  border-radius: 42% 58% 61% 39% / 45% 41% 59% 55%;
+  margin: 6px 0;
+  object-fit: cover;
+  border: solid 3px #7FB8B0;
+  transition: transform 0.2s ease;
+}
+
+.match img:hover {
+  transform: scale(1.08);
+}
+
+.bird-name {
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  color: #1F3A2E;
+}
+
+.nominee {
+  font-size: 0.75em;
+  color: #5b5b52;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* ===== Buttons ===== */
+button {
+  padding: 9px 18px;
+  border: none;
+  border-radius: 20px;
+  background: #F4C430;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  color: #1F3A2E;
+  cursor: pointer;
+  margin-top: 8px;
+  box-shadow: 3px 3px 0 rgba(0,0,0,0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+button:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+}
+
+button:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: 1px 1px 0 rgba(0,0,0,0.3);
+}
+
+button:disabled {
+  background: #cfc9b8;
+  color: #7a7a70;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/* ===== Winner Highlight ===== */
+.winner {
+  border-color: #C8102E !important;
+  background: #fff8e8 !important;
+  box-shadow: 4px 4px 0 rgba(200,16,46,0.4) !important;
+}
+
+/* ===== Final Trophy Connector ===== */
+#mobile-round4 .matches::before {
+  content: "🏆";
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 2.3em;
+  animation: trophyPop 0.6s ease-out 1;
+}
+
+#mobile-round4 .matches {
+  position: relative;
+}
+
+@keyframes trophyPop {
+  0%   { transform: translateX(-50%) scale(0.4); opacity: 0; }
+  70%  { transform: translateX(-50%) scale(1.15); opacity: 1; }
+  100% { transform: translateX(-50%) scale(1); }
+}
+
+/* ===== Modal ===== */
+.modal {
+  display: none;
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(31,58,46,0.75);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #F7F1E3;
+  color: #1F3A2E;
+  padding: 30px;
+  border-radius: 22px;
+  text-align: center;
+  max-width: 450px;
+  border: 3px solid #7FB8B0;
+}
+
+.modal-content h2 {
+  font-family: 'Quicksand', sans-serif;
+}
+
+.modal-content input {
+  padding: 8px;
+  margin: 10px 0;
+  width: 80%;
+  border-radius: 10px;
+  border: 2px solid #7FB8B0;
+  font-family: 'Nunito', sans-serif;
+}
+
+.modal-content img {
+  width: 110px;
+  height: 110px;
+  margin: 12px;
+  border-radius: 42% 58% 61% 39% / 45% 41% 59% 55%;
+  object-fit: cover;
+  border: 3px solid #7FB8B0;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+  cursor: pointer;
+}
+
+.modal-content img:hover {
+  border-color: #C8102E;
+  transform: scale(1.08);
+}
+
+@media (min-width: 769px) {
+  .modal-content {
+    max-width: 700px;
+    padding: 40px;
+  }
+
+  .modal-content img {
+    width: 150px;
+    height: 150px;
+    margin: 18px;
+  }
+}
+
+/* ===== Confetti ===== */
+.confetti {
+  position: fixed;
+  top: -10px;
+  width: 10px;
+  height: 14px;
+  opacity: 0.9;
+  z-index: 9999;
+  animation: fall linear forwards;
+  pointer-events: none;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(110vh) rotate(360deg);
+    opacity: 0.8;
+  }
+}
+
+.match.live {
+  border-color: #F4C430 !important;
+  box-shadow: 4px 4px 0 rgba(244,196,48,0.5);
+  transform: scale(1.02);
+  transition: all 0.3s ease-in-out;
+}
+
+.match.voted {
+  opacity: 0.75;
+}
+
+.already-voted-tag {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.8em;
+  color: #C8102E;
+  font-weight: bold;
+}
+
+.choice-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ===== Match card layout (single layout for all screen sizes) ===== */
+body {
+  background: #1F3A2E;
+}
+
+.match {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 95%;
+  max-width: 450px;
+  margin: 0 auto 12px;
+  padding: 12px;
+}
+
+.entry {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  text-align: center;
+}
+
+.entry img {
+  width: 62px;
+  height: 62px;
+  border-radius: 42% 58% 61% 39% / 45% 41% 59% 55%;
+  object-fit: cover;
+  border: 2px solid #7FB8B0;
+  margin-bottom: 5px;
+}
+
+.entry div {
+  font-size: 0.9em;
+  font-weight: bold;
+}
+
+.nominee {
+  font-size: 0.7em;
+  color: #5b5b52;
+}
+
+  </style>
+</head>
+
+<body>
+  <h1>🐣 Battle of the Birds 🐣</h1>
+<div class="match">
+  <div class="mobile-round active" id="mobile-round1">
+    <h2 style="margin-bottom: -10px;">Pecking Order Terms and Conditions</h2>
+    <div class="matches" style="text-align: left; padding: 0 12px;">
+      <p>This card entitles the bearer to sit at the top of the pecking order for 12 months from the date of hatching (issue).</p>
+      <p>The bearer may cut in line once per day at the coffee machine, microwave or printer. Colleagues must step aside.</p>
+      <p>The bearer gets first pick of all shared baked goods, biscuit tins and morning tea platters. Crumbs are to be left for the rest of the flock.</p>
+      <p>The bearer may claim the best chair in any meeting room by simply perching on it.</p>
+      <p>The bearer’s opinion on where to go for team lunch outranks all others, unless the restaurant serves chicken, in which case the motion is void on ethical grounds.</p>
+      <p>Other staff may not ruffle the bearer’s feathers. Any ruffling must be immediately smoothed with a compliment or a snack.</p>
+      <p>The privilege card is non-transferable, non-refundable and may not be exchanged for cash, worms or seeds.</p>
+      <p>The bearer may not use their status to override the CEO, fire alarms, health and safety procedures, or the Operations Manager’s calendar.</p>
+      <p>Loss of card must be reported immediately. A replacement may be issued, but the bearer will be demoted to “pigeon” until it arrives.</p>
+      <p>Pecking order rights expire at the crowning of next year’s champion, at which point the bearer must gracefully return to the nest like everyone else.</p>
+    </div>
+  </div>
+  
+
+</body>
+</html>
